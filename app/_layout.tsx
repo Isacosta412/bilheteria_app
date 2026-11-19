@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import { Carregando } from '@/components/Carregando';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,7 +10,14 @@ import { cores } from '@/theme';
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: 1, staleTime: 30_000 },
+    queries: {
+      staleTime: 30_000,
+      // Tenta de novo só falhas de rede/servidor; um 404 ou 403 não muda numa segunda tentativa.
+      retry: (tentativas, erro) => {
+        const status = isAxiosError(erro) ? erro.response?.status : undefined;
+        return tentativas < 1 && (status === undefined || status >= 500);
+      },
+    },
   },
 });
 

@@ -1,10 +1,17 @@
-import { Redirect, Tabs } from 'expo-router';
-import { IconeAba } from '@/components/IconeAba';
+import { Redirect, Stack } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
 import { rotaInicial } from '@/lib/rotas';
-import { opcoesAbas } from '@/theme/navegacao';
+import { cores } from '@/theme';
 
-/** Área do CLIENTE: sem login vai para /login; operador vai para /balcao. */
+// As abas ficam embaixo de tudo: abrindo /filme/3 direto pela URL, o "voltar" leva para elas.
+export const unstable_settings = {
+  initialRouteName: '(abas)',
+};
+
+/**
+ * Área do CLIENTE: sem login vai para /login; operador vai para /balcao.
+ * Stack por fora (telas com cabeçalho e voltar: filme, sessão, checkout) e as abas por dentro.
+ */
 export default function LayoutCliente() {
   const { usuario } = useAuth();
   if (usuario?.papel !== 'CLIENTE') {
@@ -12,19 +19,19 @@ export default function LayoutCliente() {
   }
 
   return (
-    <Tabs screenOptions={opcoesAbas}>
-      <Tabs.Screen
-        name="index"
-        options={{ title: 'Em cartaz', tabBarIcon: ({ focused }) => <IconeAba simbolo="🎬" focado={focused} /> }}
-      />
-      <Tabs.Screen
-        name="ingressos/index"
-        options={{ title: 'Meus ingressos', tabBarIcon: ({ focused }) => <IconeAba simbolo="🎟️" focado={focused} /> }}
-      />
-      <Tabs.Screen
-        name="perfil"
-        options={{ title: 'Perfil', tabBarIcon: ({ focused }) => <IconeAba simbolo="👤" focado={focused} /> }}
-      />
-    </Tabs>
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: cores.superficie },
+        headerTintColor: cores.texto,
+        headerTitleStyle: { fontWeight: '700' },
+        headerShadowVisible: false,
+        headerBackButtonDisplayMode: 'minimal',
+        contentStyle: { backgroundColor: cores.fundo },
+      }}
+    >
+      <Stack.Screen name="(abas)" options={{ headerShown: false }} />
+      <Stack.Screen name="filme/[id]" options={{ title: 'Filme' }} />
+      <Stack.Screen name="sessao/[id]" options={{ title: 'Escolha seus assentos' }} />
+    </Stack>
   );
 }

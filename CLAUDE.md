@@ -13,12 +13,15 @@ Você está desenvolvendo o **aplicativo** do Trabalho Final de Programação II
 app/
   _layout.tsx                 providers (QueryClient, AuthProvider), proteção de rotas
   (publico)/login.tsx, cadastro.tsx
-  (cliente)/                  tabs: Em cartaz | Meus ingressos | Perfil
-    index.tsx                 lista de filmes/sessões
-    filme/[id].tsx            sessões do filme
+  (cliente)/_layout.tsx       Stack (checagem de papel) com as abas por baixo
+    (abas)/                   tabs: Em cartaz | Meus ingressos | Perfil
+      index.tsx               lista de filmes/sessões
+      ingressos/index.tsx     meus ingressos
+      perfil.tsx
+    filme/[id].tsx            sessões do filme (tela empilhada, com voltar)
     sessao/[id].tsx           MAPA DE ASSENTOS
     checkout/[reservaId].tsx  resumo + contagem regressiva + pagamento simulado
-    ingressos/index.tsx, ingressos/[codigo].tsx (QR code)
+    ingressos/[codigo].tsx    ingresso com QR code
   (operador)/                 tabs: Bilheteria | Validar | Gerência | Relatórios
     balcao/...                venda presencial (reusa o mapa de assentos)
     validar.tsx               digitar o código ou ler o QR
