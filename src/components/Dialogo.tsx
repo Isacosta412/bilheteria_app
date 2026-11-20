@@ -36,7 +36,7 @@ export function Dialogo({ visivel, titulo, icone, children, acoes, aoFechar }: D
 }
 
 const estilos = StyleSheet.create({
-  fundo: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', alignItems: 'center', justifyContent: 'center', padding: espacos.xl },
+  fundo: { flex: 1, backgroundColor: cores.sobreposicao, alignItems: 'center', justifyContent: 'center', padding: espacos.xl },
   caixa: {
     width: '100%',
     maxWidth: 420,

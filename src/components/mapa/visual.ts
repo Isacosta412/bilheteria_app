@@ -19,7 +19,7 @@ export const VISUAL: Record<EstadoVisual, { fundo: string; borda: string; icone:
   livre: { fundo: 'transparent', borda: cores.assento.livreBorda, icone: '', corIcone: cores.textoSecundario, rotulo: 'Livre' },
   selecionado: { fundo: cores.assento.selecionado, borda: cores.assento.selecionado, icone: '✓', corIcone: cores.sobrePrimaria, rotulo: 'Selecionado' },
   reservado: { fundo: cores.assento.reservado, borda: cores.assento.reservado, icone: '⏱', corIcone: cores.sobreAviso, rotulo: 'Reservado' },
-  vendido: { fundo: cores.assento.vendido, borda: cores.assento.vendido, icone: '✕', corIcone: cores.texto, rotulo: 'Vendido' },
+  vendido: { fundo: cores.assento.vendido, borda: cores.assento.vendidoBorda, icone: '✕', corIcone: cores.texto, rotulo: 'Vendido' },
   minhaReserva: { fundo: 'transparent', borda: cores.primaria, icone: '◉', corIcone: cores.primaria, rotulo: 'Sua reserva' },
 };
 

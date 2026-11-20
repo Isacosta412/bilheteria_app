@@ -126,9 +126,9 @@ export default function MeusIngressos() {
         contentContainerStyle={secoes.length === 0 ? estilos.vazio : estilos.lista}
         ListEmptyComponent={
           <EstadoVazio
-            icone="🎟️"
-            titulo="Você ainda não tem ingressos"
-            descricao="Escolha um filme, reserve seus assentos e eles aparecem aqui."
+            icone="🍿"
+            titulo="Nenhum ingresso por aqui ainda."
+            descricao="Escolheu, pipocou, sentou."
             acao={{ titulo: 'Ver filmes em cartaz', onPress: () => router.navigate('/') }}
           />
         }

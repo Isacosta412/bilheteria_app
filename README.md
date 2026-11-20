@@ -1,13 +1,51 @@
-# bilheteria-app
+# 🍿 Pipocou
 
-App da bilheteria de cinema com **marcação de assentos**: Trabalho Final de Programação II + Banco de Dados II (Unoesc).
+> **Teu lugar, tua pipoca, tua sessão.**
+
+App de cinema com **marcação de assentos**: Trabalho Final de Programação II + Banco de Dados II (Unoesc).
 O cliente escolhe o lugar no mapa, reserva, paga (pagamento simulado) e recebe o ingresso com QR code. O operador vende no balcão, valida a entrada, cadastra filmes, salas e sessões e acompanha os relatórios.
 
-- **App em produção:** `<URL do app – preencher após o primeiro deploy>`
-- **API (backend):** [bilheteria-api](https://github.com/Isacosta412/bilheteria_api), em produção em `<URL da API – preencher>`
+- **App em produção:** `https://pipocou.<seu-dominio>` *(preencher após o primeiro deploy)*
+- **API (backend):** [bilheteria-api](https://github.com/Isacosta412/bilheteria_api), no mesmo endereço, em `https://pipocou.<seu-dominio>/api`
 
-**Stack:** Expo (SDK 58) + React Native + TypeScript strict, Expo Router, React Query, react-hook-form + zod, axios, react-native-svg / react-native-qrcode-svg, expo-camera.
+**Stack:** Expo (SDK 58) + React Native + TypeScript strict, Expo Router, React Query, react-hook-form + zod, axios, react-native-svg / react-native-qrcode-svg, react-native-reanimated, expo-camera.
 Alvos: **Web** (usado na apresentação) e Android/iOS pelo Expo Go.
+
+## Identidade
+
+| | |
+|---|---|
+| Nome | **Pipocou** (a aba de venda do operador continua se chamando **Bilheteria**) |
+| Slogan | "Teu lugar, tua pipoca, tua sessão." (login e cadastro) |
+| Bordão da compra | "Escolheu, pipocou, sentou." (pagamento aprovado e "Meus ingressos" vazio) |
+| Logo | balde de pipoca em SVG: [`src/components/LogoPipocou.tsx`](src/components/LogoPipocou.tsx) e [`assets/icon-pipocou.svg`](assets/icon-pipocou.svg) |
+
+**Paleta** ([`src/theme/cores.ts`](src/theme/cores.ts), contraste WCAG AA medido em cada par):
+
+| Papel | Cor | Uso |
+|---|---|---|
+| Fundo | `#14110F` | fundo das telas |
+| Superfície | `#221C18` | cartões, abas, cabeçalhos |
+| Primária | `#FFC93C` | botões, seleção, destaques (texto sobre ela: `#14110F`, 12,2:1) |
+| Destaque | `#E63946` | "TELA" do mapa, logo, detalhes gráficos (4,5:1 no fundo) |
+| Texto | `#FFF8E7` | texto principal (17,8:1 no fundo) |
+
+Mapa de assentos (cor **e** ícone, nunca só cor): livre = contorno creme · selecionado = amarelo com ✓ · reservado = `#F4A261` com relógio · vendido = `#5C534D` com ✕ (contorno `#8A7B6E` para passar de 3:1) · "TELA" em vermelho.
+
+Os ícones do app (`assets/images/*.png`) saem do mesmo desenho do logo:
+
+```bash
+node scripts/gerar-icones.mjs
+```
+
+O script usa o Chrome ou o Edge em modo headless, sem dependência nova.
+
+### Animações
+- **Login:** quando dá certo, o logo balança, as pipocas saem dele e aparece "Pipocou! 🍿". Depois de 1,5 s (ou com um toque na tela), o app abre a área do papel. Senha errada não anima.
+- **Pagamento aprovado:** 40 pipocas sobem do pé da tela junto com o título "Escolheu, pipocou, sentou.".
+- **Balcão:** sem animação, para não atrasar a fila.
+
+As duas usam [`src/components/ExplosaoPipoca.tsx`](src/components/ExplosaoPipoca.tsx) (reanimated + svg). O movimento roda no UI thread, sem setState por quadro. Com **"reduzir movimento"** ligado no sistema, só o texto aparece, com fade.
 
 ## Telas
 
@@ -54,6 +92,8 @@ npm run web
 
 O app abre em http://localhost:8081. No PowerShell, troque o `cp` por `Copy-Item .env.example .env`.
 
+**Para ver as animações:** entre com uma conta de cliente (a explosão do login aparece antes do catálogo). Depois escolha uma sessão, reserve assentos e toque em "Já paguei" (as 40 pipocas do pagamento aprovado). Uma conta nova mostra o "Meus ingressos" vazio com o bordão.
+
 ### Variáveis de ambiente
 
 | Variável | Exemplo | Para quê |
@@ -88,7 +128,7 @@ O `--tunnel` funciona mesmo quando o celular e o computador estão em redes dife
 
 ### APK com EAS Build (opcional)
 O perfil `preview` do [`eas.json`](eas.json) gera um APK para instalar direto no Android.
-1. Troque `EXPO_PUBLIC_API_URL` no `eas.json` pela URL da API de produção.
+1. Troque `EXPO_PUBLIC_API_URL` no `eas.json` pela URL da API de produção (`https://pipocou.<seu-dominio>/api`).
 2. Rode os comandos abaixo (precisa de uma conta Expo gratuita; o build roda na nuvem da Expo):
 
 ```bash
@@ -101,20 +141,74 @@ npx eas-cli build --platform android --profile preview
 
 Ao terminar, o EAS mostra o link para baixar o APK.
 
-## Publicação web (Netlify)
+## Produção (um subdomínio só)
 
-O app web é um site estático (`dist/`) com **fallback de SPA**: qualquer rota (ex.: `/gerencia/filmes`) abre o `index.html` e o Expo Router resolve a tela. O fallback está em `public/_redirects` (copiado para o `dist/`) e no `netlify.toml`.
+O app e a API ficam no mesmo endereço, numa VM com Nginx:
 
-**Publicação automática:** o workflow [`.github/workflows/deploy-web.yml`](.github/workflows/deploy-web.yml) roda a cada push na `main`. Ele checa os tipos, roda o lint, gera o `dist/` e publica no Netlify. Configuração (uma vez):
-1. No Netlify, crie um site vazio ("Add new site → Deploy manually") e anote o **Site ID** (Site configuration → General).
-2. Gere um token em User settings → Applications → **Personal access tokens**.
-3. No GitHub, em Settings → Secrets and variables → Actions:
-   - **Secrets:** `NETLIFY_AUTH_TOKEN` e `NETLIFY_SITE_ID`;
-   - **Variables:** `EXPO_PUBLIC_API_URL` = URL da API em produção.
-4. Faça um push na `main` (ou rode o workflow em Actions → "Publicar web" → Run workflow).
-5. **Coloque a URL do app (ex.: `https://bilheteria-xyz.netlify.app`) no `CORS_ORIGIN` da API de produção**; sem isso, o navegador bloqueia as chamadas.
+| Caminho | O que é |
+|---|---|
+| `https://pipocou.<seu-dominio>/` | o app web (arquivos estáticos em `/srv/app`) |
+| `https://pipocou.<seu-dominio>/api/...` | a API (o Nginx repassa para `127.0.0.1:3333`) |
 
-Sem os segredos, o workflow só valida e gera o build, sem publicar.
+Como os dois estão na mesma origem, o navegador não faz chamadas entre origens e o CORS não atrapalha. Nenhuma rota do app pode se chamar `api` (não há `app/api*`).
+
+**`.env.production`** (não versionado; o `npx expo export` lê ele sozinho):
+
+```
+EXPO_PUBLIC_API_URL=https://pipocou.<seu-dominio>/api
+```
+
+**Publicar** com o [`deploy-web.ps1`](deploy-web.ps1):
+1. Preencha `$Ip` e `$Dominio` no topo do script. A chave SSH padrão é `C:\Users\isado\.ssh\bilheteria.pem`.
+2. Na pasta `frontend`, rode o script. Ele gera o `dist/` com `npx expo export --platform web`, usando `https://$Dominio/api`, e envia tudo por `scp` para `ubuntu@IP:/srv/app`.
+
+```powershell
+.\deploy-web.ps1
+```
+
+Para apagar os arquivos antigos do servidor antes do envio, use `-Limpar`:
+
+```powershell
+.\deploy-web.ps1 -Limpar
+```
+
+**Nginx** (trecho do `server` do subdomínio; o HTTPS pode vir do Certbot):
+
+```nginx
+root /srv/app;
+index index.html;
+
+# Fallback de SPA: qualquer rota (ex.: /gerencia/filmes) abre o index.html e o Expo Router resolve a tela.
+location / {
+    try_files $uri $uri/ /index.html;
+}
+
+# A barra no fim do proxy_pass tira o "/api" antes de chegar na API (o backend não muda).
+location /api/ {
+    proxy_pass http://127.0.0.1:3333/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+Na VM, antes do primeiro envio, deixe a pasta com o usuário `ubuntu`:
+
+```bash
+sudo mkdir -p /srv/app && sudo chown ubuntu:ubuntu /srv/app
+```
+
+Para testar o build no seu computador do mesmo jeito que o Nginx serve (com fallback de SPA), rode estes dois comandos e abra http://localhost:5173/gerencia/filmes:
+
+```bash
+npx expo export --platform web
+```
+
+```bash
+node scripts/servir-dist.mjs dist
+```
+
+**CI:** o workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda a cada push na `main`. Ele checa os tipos, roda o lint e gera o build web. Não publica nada: a publicação é pelo `deploy-web.ps1`.
 
 ## Estrutura
 
@@ -126,12 +220,12 @@ app/                      rotas (Expo Router)
   (operador)/             balcão, validar, gerência, relatórios → só OPERADOR
 src/
   api/        cliente axios (token, 401 → logout), traduzirErro, dicionário de erros, um arquivo por recurso
-  components/ Botao, Campo, MapaAssentos, Toast, Dialogo, formulários, relatórios…
+  components/ LogoPipocou, ExplosaoPipoca, Botao, Campo, MapaAssentos, Toast, Dialogo, formulários, relatórios…
   contexts/   AuthProvider (usuário, entrar, cadastrar, sair; restaura a sessão com GET /auth/me)
   hooks/      useAuth, useMapaAssentos, useSelecaoAssentos, useContagemRegressiva…
   lib/        armazenamento (SecureStore no celular, localStorage na web), rotas, formatação, dinheiro
   schemas/    schemas zod dos formulários
-  theme/      cores (contraste AA), espaçamentos, tipografia
+  theme/      paleta Pipocou (contraste AA), espaçamentos, tipografia
   types/      tipos que espelham os DTOs da API
 ```
 

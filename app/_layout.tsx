@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { Botao } from '@/components/Botao';
 import { Carregando } from '@/components/Carregando';
+import { LogoPipocou } from '@/components/LogoPipocou';
 import { ToastProvider } from '@/components/Toast';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { useAuth } from '@/hooks/useAuth';
@@ -39,7 +40,7 @@ function Navegacao() {
   // Enquanto a sessão salva é restaurada, nenhuma rota é montada: um F5 numa URL protegida
   // não é desviado para o login antes de sabermos quem é o usuário.
   if (carregando) {
-    return <Carregando telaCheia mensagem="Abrindo a bilheteria…" />;
+    return <Carregando telaCheia mensagem="Abrindo o Pipocou…" />;
   }
 
   return (
@@ -59,9 +60,7 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
   return (
     <SafeAreaProvider>
       <View style={estilos.erro}>
-        <Text style={estilos.erroIcone} aria-hidden>
-          🎞️
-        </Text>
+        <LogoPipocou tamanho={64} comTexto={false} />
         <Text style={estilos.erroTitulo} accessibilityRole="header">
           Algo deu errado nesta tela
         </Text>
@@ -74,8 +73,14 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 }
 
 const estilos = StyleSheet.create({
-  erro: { flex: 1, backgroundColor: cores.fundo, alignItems: 'center', justifyContent: 'center', padding: espacos.xl, gap: espacos.md },
-  erroIcone: { fontSize: 44 },
+  erro: {
+    flex: 1,
+    backgroundColor: cores.fundo,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: espacos.xl,
+    gap: espacos.md,
+  },
   erroTitulo: { ...tipografia.subtitulo, color: cores.texto, textAlign: 'center' },
   erroTexto: { ...tipografia.corpo, color: cores.textoSecundario, textAlign: 'center', maxWidth: 420 },
 });

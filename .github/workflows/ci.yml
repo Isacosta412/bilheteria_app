@@ -1,0 +1,39 @@
+# CI do app: a cada push na main (e em pull requests), checa os tipos, roda o lint e gera o build web.
+# A publicação é feita pelo deploy-web.ps1 (VM com Nginx); este workflow não publica nada.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    env:
+      # Só para o build; a URL real de produção vem do .env.production no deploy.
+      EXPO_PUBLIC_API_URL: https://pipocou.exemplo.com/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Checar tipos
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Gerar o build web (dist/)
+        run: npm run build:web

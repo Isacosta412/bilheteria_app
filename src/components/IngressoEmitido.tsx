@@ -1,20 +1,20 @@
 import { StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { formatarCodigo, formatarDiaHora, soletrarCodigo } from '@/lib/formatacao';
-import { espacos, raios, tipografia } from '@/theme';
+import { cores, espacos, raios, tipografia } from '@/theme';
 import type { Ingresso } from '@/types';
 
 /** "Papel" claro e tinta escura: contraste máximo para o QR e boa impressão. */
-const PAPEL = '#FFFFFF';
-const TINTA = '#14141A';
-const TINTA_SECUNDARIA = '#4A4A57';
+const PAPEL = cores.ingresso.papel;
+const TINTA = cores.ingresso.tinta;
+const TINTA_SECUNDARIA = cores.ingresso.tintaSecundaria;
 
 /** Ingresso compacto (balcão): QR + código + dados. Também é o bloco impresso na web. */
 export function IngressoEmitido({ ingresso, indice }: { ingresso: Ingresso; indice: number }) {
   return (
     <View style={estilos.cartao} nativeID={`ingresso-impresso-${indice}`}>
       <View style={estilos.qr} accessible accessibilityRole="image" accessibilityLabel={`QR code do ingresso ${ingresso.fila}${ingresso.numero}`}>
-        <QRCode value={ingresso.codigo} size={132} backgroundColor={PAPEL} color={TINTA} />
+        <QRCode value={ingresso.codigo} size={132} backgroundColor={cores.qr.fundo} color={cores.qr.tinta} />
       </View>
       <View style={estilos.info}>
         <Text style={estilos.filme} numberOfLines={2}>
@@ -42,9 +42,9 @@ const estilos = StyleSheet.create({
     borderRadius: raios.lg,
     padding: espacos.lg,
     borderWidth: 1,
-    borderColor: '#D6D6DE',
+    borderColor: cores.ingresso.borda,
   },
-  qr: { padding: espacos.xs, backgroundColor: PAPEL },
+  qr: { padding: espacos.xs, backgroundColor: cores.qr.fundo },
   info: { flex: 1, minWidth: 180, gap: 2 },
   filme: { ...tipografia.corpoForte, fontSize: 18, color: TINTA },
   detalhe: { ...tipografia.corpo, color: TINTA_SECUNDARIA, textTransform: 'capitalize' },

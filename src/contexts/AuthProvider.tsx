@@ -8,11 +8,21 @@ import type { Usuario } from '@/types';
 
 const CHAVE_TOKEN = 'bilheteria.token';
 
+/** Resultado do login: o usuário e a função que o torna ativo no app (o que dispara o redirecionamento). */
+export interface SessaoIniciada {
+  usuario: Usuario;
+  ativar(): void;
+}
+
 export interface ValorAuth {
   usuario: Usuario | null;
   /** true enquanto a sessão salva está sendo restaurada ao abrir o app. */
   carregando: boolean;
-  entrar(email: string, senha: string): Promise<void>;
+  /**
+   * Faz o login. Com `adiarAtivacao`, o token já fica salvo, mas o usuário só vira o usuário do app
+   * quando a tela chamar `ativar()` (a tela de login usa isso para mostrar a animação antes de sair).
+   */
+  entrar(email: string, senha: string, opcoes?: { adiarAtivacao?: boolean }): Promise<SessaoIniciada>;
   /** Cria a conta (sempre CLIENTE) e já entra. */
   cadastrar(dados: authApi.DadosCadastro): Promise<void>;
   sair(): Promise<void>;
@@ -69,12 +79,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [limparSessao]);
 
   const entrar = useCallback(
-    async (email: string, senha: string) => {
+    async (email: string, senha: string, opcoes?: { adiarAtivacao?: boolean }): Promise<SessaoIniciada> => {
       const { token, usuario: logado } = await authApi.login(email, senha);
       await armazenamento.salvar(CHAVE_TOKEN, token);
       definirToken(token);
       queryClient.clear();
-      setUsuario(logado);
+      const ativar = () => setUsuario(logado);
+      if (!opcoes?.adiarAtivacao) ativar();
+      return { usuario: logado, ativar };
     },
     [queryClient],
   );

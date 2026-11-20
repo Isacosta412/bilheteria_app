@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { codigoDoErro, errosDeCampo, traduzirErro } from '@/api/client';
 import { Botao } from '@/components/Botao';
 import { Campo } from '@/components/Campo';
+import { LogoPipocou } from '@/components/LogoPipocou';
 import { MensagemErro } from '@/components/MensagemErro';
 import { Tela } from '@/components/Tela';
 import { useAuth } from '@/hooks/useAuth';
@@ -51,10 +52,11 @@ export default function TelaCadastro() {
   return (
     <Tela centralizar bordas={['top', 'left', 'right', 'bottom']}>
       <View style={estilos.cartao}>
+        <LogoPipocou tamanho={56} />
+        <Text style={estilos.slogan}>Teu lugar, tua pipoca, tua sessão.</Text>
         <Text style={estilos.titulo} accessibilityRole="header">
           Criar conta
         </Text>
-        <Text style={estilos.subtitulo}>Leva menos de um minuto.</Text>
 
         {erroApi !== null && <MensagemErro mensagem={erroApi} compacta />}
 
@@ -126,9 +128,23 @@ const estilos = StyleSheet.create({
     borderWidth: 1,
     borderColor: cores.borda,
   },
-  titulo: { ...tipografia.titulo, color: cores.texto, textAlign: 'center' },
-  subtitulo: { ...tipografia.corpo, color: cores.textoSecundario, textAlign: 'center', marginBottom: espacos.xl },
-  rodape: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: espacos.xs, marginTop: espacos.xl, flexWrap: 'wrap' },
+  titulo: { ...tipografia.titulo, color: cores.texto, textAlign: 'center', marginBottom: espacos.lg },
+  slogan: {
+    ...tipografia.corpo,
+    fontStyle: 'italic',
+    color: cores.textoSecundario,
+    textAlign: 'center',
+    marginTop: espacos.xs,
+    marginBottom: espacos.lg,
+  },
+  rodape: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: espacos.xs,
+    marginTop: espacos.xl,
+    flexWrap: 'wrap',
+  },
   rodapeTexto: { ...tipografia.corpo, color: cores.textoSecundario },
   link: { ...tipografia.corpoForte, color: cores.primaria, paddingVertical: espacos.sm },
 });

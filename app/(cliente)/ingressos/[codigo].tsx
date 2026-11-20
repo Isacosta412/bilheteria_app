@@ -18,9 +18,9 @@ import { formatarCodigo, formatarDataHoraCurta, formatarDiaHora, soletrarCodigo 
 import { cores, espacos, raios, tipografia } from '@/theme';
 
 /** Cores do "papel" do ingresso: claro para o QR ter contraste máximo. Texto escuro: 15,9:1 e 8,2:1. */
-const PAPEL = '#F4F4F6';
-const TINTA = '#14141A';
-const TINTA_SECUNDARIA = '#4A4A57';
+const PAPEL = cores.ingresso.papel;
+const TINTA = cores.ingresso.tinta;
+const TINTA_SECUNDARIA = cores.ingresso.tintaSecundaria;
 const RECORTE = 28;
 const TAG_TELA_ACESA = 'ingresso-qr';
 const MONO = Platform.select({ ios: 'Menlo', android: 'monospace', default: 'ui-monospace, Menlo, Consolas, monospace' });
@@ -140,7 +140,7 @@ export default function DetalheIngresso() {
                 accessibilityRole="image"
                 accessibilityLabel={esmaecido ? 'QR code do ingresso (não vale mais para entrada)' : 'QR code do ingresso para apresentar na entrada'}
               >
-                <QRCode value={ingresso.codigo} size={tamanhoQr} backgroundColor="#FFFFFF" color={TINTA} ecl="M" />
+                <QRCode value={ingresso.codigo} size={tamanhoQr} backgroundColor={cores.qr.fundo} color={cores.qr.tinta} ecl="M" />
               </View>
               {tarja && (
                 <View style={estilos.tarja} accessibilityRole="text">
@@ -185,11 +185,11 @@ const estilos = StyleSheet.create({
     marginHorizontal: RECORTE / 2 + espacos.xs,
     borderTopWidth: 2,
     borderStyle: 'dashed',
-    borderColor: '#B9B9C6',
+    borderColor: cores.ingresso.borda,
   },
   canhoto: { alignItems: 'center', padding: espacos.xl, paddingTop: espacos.md, gap: espacos.sm },
   qrArea: { alignItems: 'center', justifyContent: 'center' },
-  qr: { padding: espacos.md, backgroundColor: '#FFFFFF', borderRadius: raios.md },
+  qr: { padding: espacos.md, backgroundColor: cores.qr.fundo, borderRadius: raios.md },
   qrEsmaecido: { opacity: 0.2 },
   tarja: {
     position: 'absolute',

@@ -75,7 +75,7 @@ export function LeitorQr({ aberto, pausado, aoLer, aoFechar, children }: LeitorQ
 }
 
 const estilos = StyleSheet.create({
-  raiz: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' },
+  raiz: { flex: 1, backgroundColor: cores.camera.fundo, alignItems: 'center', justifyContent: 'center' },
   topo: {
     position: 'absolute',
     top: 0,
@@ -86,9 +86,9 @@ const estilos = StyleSheet.create({
     alignItems: 'center',
     padding: espacos.lg,
     paddingTop: espacos.xxl,
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor: cores.camera.faixa,
   },
-  titulo: { ...tipografia.subtitulo, color: '#FFFFFF' },
+  titulo: { ...tipografia.subtitulo, color: cores.camera.texto },
   mira: {
     position: 'absolute',
     alignSelf: 'center',
@@ -100,6 +100,6 @@ const estilos = StyleSheet.create({
     borderRadius: raios.lg,
   },
   aviso: { padding: espacos.xl, gap: espacos.md, maxWidth: 420 },
-  avisoTitulo: { ...tipografia.subtitulo, color: '#FFFFFF', textAlign: 'center' },
-  mensagem: { ...tipografia.corpo, color: '#FFFFFF', textAlign: 'center' },
+  avisoTitulo: { ...tipografia.subtitulo, color: cores.camera.texto, textAlign: 'center' },
+  mensagem: { ...tipografia.corpo, color: cores.camera.texto, textAlign: 'center' },
 });

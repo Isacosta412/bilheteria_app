@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
@@ -10,6 +10,7 @@ import { buscarReserva, cancelarReserva, pagarReserva } from '@/api/reservas';
 import { Botao } from '@/components/Botao';
 import { Carregando } from '@/components/Carregando';
 import { Dialogo } from '@/components/Dialogo';
+import { ExplosaoPipoca } from '@/components/ExplosaoPipoca';
 import { EstadoVazio } from '@/components/EstadoVazio';
 import { MensagemErro } from '@/components/MensagemErro';
 import { Tela } from '@/components/Tela';
@@ -21,24 +22,6 @@ import { AREA_TOQUE_MINIMA, LARGURA_MAXIMA, cores, espacos, raios, tipografia } 
 import type { Compra } from '@/types';
 
 type Metodo = 'PIX' | 'CARTAO';
-
-/** ✓ com animação simples (escala + opacidade) para a tela de sucesso. */
-function ConfirmacaoAnimada() {
-  const [escala] = useState(() => new Animated.Value(0.3));
-  const [opacidade] = useState(() => new Animated.Value(0));
-  useEffect(() => {
-    const nativo = Platform.OS !== 'web';
-    Animated.parallel([
-      Animated.spring(escala, { toValue: 1, friction: 4, tension: 80, useNativeDriver: nativo }),
-      Animated.timing(opacidade, { toValue: 1, duration: 300, useNativeDriver: nativo }),
-    ]).start();
-  }, [escala, opacidade]);
-  return (
-    <Animated.View style={[estilos.check, { opacity: opacidade, transform: [{ scale: escala }] }]} aria-hidden>
-      <Text style={estilos.checkTexto}>✓</Text>
-    </Animated.View>
-  );
-}
 
 export default function Checkout() {
   const router = useRouter();
@@ -101,7 +84,11 @@ export default function Checkout() {
   if (!idValido || (isAxiosError(consulta.error) && consulta.error.response?.status === 404)) {
     return (
       <Tela centralizar>
-        <EstadoVazio icone="🎟️" titulo="Reserva não encontrada" acao={{ titulo: 'Ver filmes em cartaz', onPress: () => router.replace('/') }} />
+        <EstadoVazio
+          icone="🎟️"
+          titulo="Reserva não encontrada"
+          acao={{ titulo: 'Ver filmes em cartaz', onPress: () => router.replace('/') }}
+        />
       </Tela>
     );
   }
@@ -118,26 +105,44 @@ export default function Checkout() {
   if (compra || reserva.status === 'PAGA') {
     const quantidade = compra?.ingressos.length ?? reserva.assentos.length;
     return (
-      <Tela centralizar>
-        <View style={estilos.sucesso}>
-          <ConfirmacaoAnimada />
-          <Text style={estilos.sucessoTitulo} accessibilityRole="header">
-            Pagamento confirmado!
-          </Text>
-          <Text style={estilos.sucessoTexto}>
-            {quantidade} {quantidade === 1 ? 'ingresso emitido' : 'ingressos emitidos'} para {reserva.sessao.filmeTitulo}.
-          </Text>
-          <Text style={estilos.sucessoTexto}>{formatarDiaHora(reserva.sessao.dataHora)} · {reserva.sessao.salaNome}</Text>
-          <Botao
-            titulo="Ver meus ingressos"
-            onPress={() => {
-              if (router.canDismiss()) router.dismissAll();
-              router.navigate('/ingressos');
-            }}
-            estilo={estilos.sucessoBotao}
-          />
-        </View>
-      </Tela>
+      <View style={estilos.raiz}>
+        <Tela centralizar>
+          <View style={estilos.sucesso}>
+            <Text style={estilos.sucessoSelo}>Pagamento aprovado</Text>
+            <Text style={estilos.sucessoTitulo} accessibilityRole="header">
+              Escolheu, pipocou, sentou.
+            </Text>
+            <View
+              style={estilos.assentosPagos}
+              accessible
+              accessibilityLabel={`Assentos: ${reserva.assentos.map((x) => `fila ${x.fila}, assento ${x.numero}`).join('; ')}`}
+            >
+              {reserva.assentos.map((x) => (
+                <Text key={`${x.fila}${x.numero}`} style={estilos.assentoPago}>
+                  {x.fila}
+                  {x.numero}
+                </Text>
+              ))}
+            </View>
+            <Text style={estilos.sucessoTexto}>
+              {quantidade} {quantidade === 1 ? 'ingresso emitido' : 'ingressos emitidos'} para {reserva.sessao.filmeTitulo}.
+            </Text>
+            <Text style={estilos.sucessoTexto}>
+              {formatarDiaHora(reserva.sessao.dataHora)} · {reserva.sessao.salaNome}
+            </Text>
+            <Botao
+              titulo="Ver meus ingressos"
+              onPress={() => {
+                if (router.canDismiss()) router.dismissAll();
+                router.navigate('/ingressos');
+              }}
+              estilo={estilos.sucessoBotao}
+            />
+          </View>
+        </Tela>
+        {/* Só comemora o pagamento feito agora (ao reabrir uma reserva já paga, não). */}
+        <ExplosaoPipoca ativo={compra !== null} deBaixo quantidade={40} duracaoMs={1800} alcance={0.85} />
+      </View>
     );
   }
 
@@ -217,16 +222,19 @@ export default function Checkout() {
           {metodo === 'PIX' ? (
             <View style={estilos.cartao}>
               <View style={estilos.qr} accessibilityLabel="QR code PIX de demonstração">
-                <QRCode value={`PIX-SIMULADO-BILHETERIA-${reserva.reservaId}`} size={168} backgroundColor="#FFFFFF" color="#14141A" />
+                <QRCode
+                  value={`PIX-SIMULADO-BILHETERIA-${reserva.reservaId}`}
+                  size={168}
+                  backgroundColor={cores.qr.fundo}
+                  color={cores.qr.tinta}
+                />
               </View>
               <Text style={estilos.legendaQr}>QR de demonstração – nenhum valor é cobrado.</Text>
             </View>
           ) : (
             <View style={estilos.avisoCartao} accessibilityRole="alert">
               <Text style={estilos.avisoTitulo}>⚠ Pagamento simulado – não digite dados reais</Text>
-              <Text style={estilos.avisoTexto}>
-                Este é um trabalho acadêmico: nenhum dado de cartão é pedido nem cobrado.
-              </Text>
+              <Text style={estilos.avisoTexto}>Este é um trabalho acadêmico: nenhum dado de cartão é pedido nem cobrado.</Text>
             </View>
           )}
 
@@ -326,7 +334,7 @@ const estilos = StyleSheet.create({
   metodoAtivo: { borderColor: cores.primaria, backgroundColor: cores.superficieElevada },
   metodoTexto: { ...tipografia.corpoForte, color: cores.textoSecundario },
   metodoTextoAtivo: { color: cores.texto },
-  qr: { alignSelf: 'center', padding: espacos.md, backgroundColor: '#FFFFFF', borderRadius: raios.md },
+  qr: { alignSelf: 'center', padding: espacos.md, backgroundColor: cores.qr.fundo, borderRadius: raios.md },
   legendaQr: { ...tipografia.legenda, color: cores.textoSecundario, textAlign: 'center', marginTop: espacos.sm },
   avisoCartao: {
     backgroundColor: cores.aviso,
@@ -338,16 +346,26 @@ const estilos = StyleSheet.create({
   avisoTexto: { ...tipografia.corpo, color: cores.sobreAviso },
   dialogoTexto: { ...tipografia.corpo, color: cores.textoSecundario, textAlign: 'center' },
   sucesso: { width: '100%', maxWidth: LARGURA_MAXIMA / 2, alignSelf: 'center', alignItems: 'center', gap: espacos.md },
-  check: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+  sucessoSelo: {
+    ...tipografia.legenda,
+    fontWeight: '700',
+    color: cores.sobreSucesso,
     backgroundColor: cores.sucesso,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: espacos.md,
+    paddingHorizontal: espacos.md,
+    paddingVertical: espacos.xs,
+    borderRadius: raios.lg,
+    overflow: 'hidden',
   },
-  checkTexto: { fontSize: 52, fontWeight: '900', color: cores.sobreSucesso },
+  assentosPagos: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: espacos.sm },
+  assentoPago: {
+    ...tipografia.corpoForte,
+    color: cores.sobrePrimaria,
+    backgroundColor: cores.primaria,
+    paddingHorizontal: espacos.md,
+    paddingVertical: espacos.xs,
+    borderRadius: raios.md,
+    overflow: 'hidden',
+  },
   sucessoTitulo: { ...tipografia.titulo, color: cores.texto, textAlign: 'center' },
   sucessoTexto: { ...tipografia.corpo, color: cores.textoSecundario, textAlign: 'center' },
   sucessoBotao: { marginTop: espacos.lg, alignSelf: 'stretch' },

@@ -1,19 +1,16 @@
 {
   "expo": {
-    "name": "Bilheteria",
-    "slug": "bilheteria-app",
+    "name": "Pipocou",
+    "slug": "pipocou",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "bilheteria",
+    "scheme": "pipocou",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#0E0E13",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
+    "backgroundColor": "#14110F",
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0E0E13",
+        "backgroundColor": "#14110F",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -23,11 +20,12 @@
     "web": {
       "output": "single",
       "favicon": "./assets/images/favicon.png",
-      "name": "Bilheteria",
+      "name": "Pipocou",
       "lang": "pt-BR",
-      "description": "Bilheteria de cinema com marcação de assentos – Trabalho Final de Programação II + Banco de Dados II (Unoesc)",
-      "themeColor": "#0E0E13",
-      "backgroundColor": "#0E0E13"
+      "description": "Teu lugar, tua pipoca, tua sessão.",
+      "themeColor": "#14110F",
+      "backgroundColor": "#14110F",
+      "shortName": "Pipocou"
     },
     "plugins": [
       "expo-router",
@@ -42,9 +40,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0E0E13",
+          "backgroundColor": "#14110F",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 120
         }
       ]
     ],

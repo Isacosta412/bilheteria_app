@@ -1,7 +1,7 @@
 {
-  "name": "bilheteria-app",
+  "name": "pipocou",
   "version": "0.1.0",
-  "description": "App da bilheteria com marcação de assentos (Trabalho Final Programação II + Banco de Dados II – Unoesc)",
+  "description": "Pipocou: app de cinema com marcação de assentos (Trabalho Final Programação II + Banco de Dados II – Unoesc)",
   "main": "expo-router/entry",
   "private": true,
   "scripts": {

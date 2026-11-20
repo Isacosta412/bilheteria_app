@@ -16,10 +16,10 @@ const ROTULO_METODO: Record<MetodoPagamento, string> = { DINHEIRO: 'Dinheiro', C
 const CSS_IMPRESSAO = `
 @media print {
   @page { margin: 12mm; }
-  html, body { background: #fff !important; }
+  html, body { background: ${cores.impressao.papel} !important; }
   body * { visibility: hidden !important; }
-  #area-impressao, #area-impressao * { visibility: visible !important; color: #000 !important; }
-  #area-impressao { position: absolute; left: 0; top: 0; width: 100%; background: #fff !important; }
+  #area-impressao, #area-impressao * { visibility: visible !important; color: ${cores.impressao.tinta} !important; }
+  #area-impressao { position: absolute; left: 0; top: 0; width: 100%; background: ${cores.impressao.papel} !important; }
   [id^="ingresso-impresso"] { break-inside: avoid; page-break-inside: avoid; margin-bottom: 8mm; }
 }`;
 

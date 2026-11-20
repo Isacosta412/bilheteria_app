@@ -93,7 +93,7 @@ const estilos = StyleSheet.create({
     borderLeftWidth: 5,
     paddingVertical: espacos.md,
     paddingHorizontal: espacos.lg,
-    shadowColor: '#000',
+    shadowColor: cores.sombra,
     shadowOpacity: 0.4,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },

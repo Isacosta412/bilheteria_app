@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { espacos, tipografia } from '@/theme';
+import { cores, espacos, tipografia } from '@/theme';
 
 export type TipoResultado = 'liberado' | 'utilizado' | 'recusado';
 
@@ -12,12 +12,12 @@ export interface Resultado {
 
 /**
  * Cor E ícone (nunca só cor). Contraste do texto sobre o fundo:
- * verde #15803D/branco 5,0:1 · amarelo #FACC15/#14141A 12:1 · vermelho #B91C1C/branco 6,5:1.
+ * verde/branco 5,0:1 · laranja/escuro 9,1:1 · vermelho/branco 6,5:1 (tokens em cores.validacao).
  */
 const VISUAL: Record<TipoResultado, { fundo: string; texto: string; icone: string }> = {
-  liberado: { fundo: '#15803D', texto: '#FFFFFF', icone: '✓' },
-  utilizado: { fundo: '#FACC15', texto: '#14141A', icone: '⚠' },
-  recusado: { fundo: '#B91C1C', texto: '#FFFFFF', icone: '✕' },
+  liberado: { ...cores.validacao.liberado, icone: '✓' },
+  utilizado: { ...cores.validacao.utilizado, icone: '⚠' },
+  recusado: { ...cores.validacao.recusado, icone: '✕' },
 };
 
 export const DURACAO_RESULTADO_MS = 3000;

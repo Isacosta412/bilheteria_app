@@ -10,7 +10,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://SUBSTITUA-PELA-URL-DA-API"
+        "EXPO_PUBLIC_API_URL": "https://pipocou.SEU-DOMINIO.com.br/api"
       }
     }
   }

@@ -158,7 +158,7 @@ const estilos = StyleSheet.create({
   placeholder: { color: cores.textoSecundario },
   seta: { color: cores.textoSecundario, fontSize: 16 },
   erro: { ...tipografia.legenda, color: cores.erro },
-  fundo: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', alignItems: 'center', justifyContent: 'center', padding: espacos.lg },
+  fundo: { flex: 1, backgroundColor: cores.sobreposicao, alignItems: 'center', justifyContent: 'center', padding: espacos.lg },
   janela: {
     width: '100%',
     maxWidth: 480,
