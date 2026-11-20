@@ -62,6 +62,16 @@ function corpoDeErro(e: unknown): ErroApi['erro'] | undefined {
   return undefined;
 }
 
+/** `detalhes` do erro da API (ex.: { utilizadoEm } no INGRESSO_JA_UTILIZADO), se houver. */
+export function detalhesDoErro(e: unknown): unknown {
+  return corpoDeErro(e)?.detalhes;
+}
+
+/** Mensagem original da API (já em pt-BR), para quando ela é mais específica que o dicionário. */
+export function mensagemDaApi(e: unknown): string | undefined {
+  return corpoDeErro(e)?.mensagem;
+}
+
 /** Código de erro da API (ex.: "ASSENTO_INDISPONIVEL"), se houver. */
 export function codigoDoErro(e: unknown): string | undefined {
   return corpoDeErro(e)?.codigo;

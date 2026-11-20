@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -6,17 +5,17 @@ import { isAxiosError } from 'axios';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { chaves } from '@/api/chaves';
 import { codigoDoErro, traduzirErro } from '@/api/client';
-import { MENSAGENS_ERRO } from '@/api/erros';
 import { listarMinhasReservas, reservar } from '@/api/reservas';
 import { Botao } from '@/components/Botao';
 import { Esqueleto } from '@/components/Esqueleto';
 import { EstadoVazio } from '@/components/EstadoVazio';
-import { MAX_SELECAO_PADRAO, MapaAssentos } from '@/components/MapaAssentos';
+import { MapaAssentos } from '@/components/MapaAssentos';
 import { MensagemErro } from '@/components/MensagemErro';
 import { SeloClassificacao } from '@/components/SeloClassificacao';
 import { Tela } from '@/components/Tela';
 import { useToast } from '@/components/Toast';
 import { useMapaAssentos } from '@/hooks/useMapaAssentos';
+import { useSelecaoAssentos } from '@/hooks/useSelecaoAssentos';
 import { invalidarAposCompra } from '@/lib/invalidacoes';
 import { formatarDiaHora, formatarPreco } from '@/lib/formatacao';
 import { LARGURA_MAXIMA, cores, espacos, raios, tipografia } from '@/theme';
@@ -33,66 +32,8 @@ export default function TelaSessao() {
   const mapaQuery = useMapaAssentos(sessaoId, idValido);
   const mapa = mapaQuery.data;
 
-  // ─── Seleção ───────────────────────────────────────────────────────────────
-  // "escolhidos" é o que a pessoa tocou; a seleção EFETIVA só mantém os que continuam LIVRES
-  // no mapa mais recente (o mapa se atualiza a cada 5 s).
-  const [escolhidos, setEscolhidos] = useState<number[]>([]);
-
-  const { livres, rotulos } = useMemo(() => {
-    const livresSet = new Set<number>();
-    const rotulosMap = new Map<number, string>();
-    for (const { fila, assentos } of mapa?.filas ?? []) {
-      for (const a of assentos) {
-        rotulosMap.set(a.assentoId, `${fila}${a.numero}`);
-        if (a.status === 'LIVRE') livresSet.add(a.assentoId);
-      }
-    }
-    return { livres: livresSet, rotulos: rotulosMap };
-  }, [mapa]);
-
-  const selecionados = useMemo(
-    () => (mapa ? escolhidos.filter((id) => livres.has(id)) : escolhidos),
-    [mapa, escolhidos, livres],
-  );
-  const perdidos = useMemo(
-    () => (mapa ? escolhidos.filter((id) => !livres.has(id)) : []),
-    [mapa, escolhidos, livres],
-  );
-
-  // Avisa UMA vez quando um assento escolhido deixa de estar livre (outra pessoa pegou).
-  const avisados = useRef(new Set<number>());
-  const conflitoRecente = useRef(false);
-  const chavePerdidos = perdidos.join(',');
-  useEffect(() => {
-    const novos = perdidos.filter((id) => !avisados.current.has(id));
-    if (novos.length === 0) return;
-    novos.forEach((id) => avisados.current.add(id));
-    const nomes = novos.map((id) => rotulos.get(id) ?? '?').join(', ');
-    const restam = selecionados.length > 0 ? ' Os demais continuam selecionados.' : '';
-    toast.mostrar(
-      conflitoRecente.current
-        ? `${MENSAGENS_ERRO.ASSENTO_INDISPONIVEL} (${nomes})${restam}`
-        : novos.length === 1
-          ? `O assento ${nomes} acabou de ser reservado por outra pessoa.`
-          : `Os assentos ${nomes} acabaram de ser reservados por outra pessoa.`,
-      'aviso',
-    );
-    conflitoRecente.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- dispara só quando o conjunto de perdidos muda
-  }, [chavePerdidos]);
-
-  const alternar = useCallback(
-    (assentoId: number) => {
-      const jaSelecionado = selecionados.includes(assentoId);
-      if (!jaSelecionado && selecionados.length >= MAX_SELECAO_PADRAO) {
-        toast.mostrar(`Você pode escolher no máximo ${MAX_SELECAO_PADRAO} assentos por reserva.`, 'info');
-        return;
-      }
-      avisados.current.delete(assentoId);
-      setEscolhidos(jaSelecionado ? selecionados.filter((id) => id !== assentoId) : [...selecionados, assentoId]);
-    },
-    [selecionados, toast],
-  );
+  // ─── Seleção (lógica compartilhada com o balcão) ──────────────────────────
+  const { selecionados, nomesSelecionados, alternar, limpar, marcarConflito } = useSelecaoAssentos(mapa);
 
   // ─── Reserva pendente do próprio usuário nesta sessão ──────────────────────
   const temMinhaReserva = mapa?.filas.some((f) => f.assentos.some((a) => a.minhaReserva)) ?? false;
@@ -108,14 +49,14 @@ export default function TelaSessao() {
     mutationFn: () => reservar({ sessaoId, assentoIds: selecionados }),
     onSuccess: async (reserva) => {
       await invalidarAposCompra(queryClient, sessaoId);
-      setEscolhidos([]);
+      limpar();
       router.replace({ pathname: '/checkout/[reservaId]', params: { reservaId: String(reserva.reservaId) } });
     },
     onError: (erro) => {
       const codigo = codigoDoErro(erro);
       if (codigo === 'ASSENTO_INDISPONIVEL') {
         // CLAUDE.md: mostra a mensagem, recarrega o mapa e mantém os demais selecionados.
-        conflitoRecente.current = true;
+        marcarConflito();
         toast.mostrar(traduzirErro(erro), 'aviso');
         void mapaQuery.refetch();
         return;
@@ -157,10 +98,6 @@ export default function TelaSessao() {
 
   const { sessao } = mapa;
   const quantidade = selecionados.length;
-  const nomesSelecionados = [...selecionados]
-    .map((id) => rotulos.get(id) ?? '')
-    .sort((a, b) => a.length - b.length || a.localeCompare(b, 'pt-BR', { numeric: true }))
-    .join(', ');
   const previa = formatarPreco(Number(sessao.preco) * quantidade);
   const esgotada = mapa.resumo.livres === 0;
 
