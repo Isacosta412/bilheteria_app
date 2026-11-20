@@ -88,3 +88,8 @@ export const ROTULO_CLASSIFICACAO: Record<Classificacao, { sigla: string; extens
   DEZESSEIS: { sigla: '16', extenso: 'não recomendado para menores de 16 anos' },
   DEZOITO: { sigla: '18', extenso: 'não recomendado para menores de 18 anos' },
 };
+
+/** "30.00" → "30%"; "42.50" → "42,5%" */
+export function formatarPercentual(valor: string | number): string {
+  return `${Number(valor).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`;
+}

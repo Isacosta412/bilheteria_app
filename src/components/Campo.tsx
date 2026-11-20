@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle } from 'react-native';
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form';
 import { AREA_TOQUE_MINIMA, cores, espacos, raios, tipografia } from '@/theme';
 
@@ -12,13 +12,17 @@ interface CampoProps<T extends FieldValues> extends PropsDoInput {
   /** Campo de senha: esconde o texto e mostra o botão Mostrar/Ocultar. */
   senha?: boolean;
   dica?: string;
+  /** Formata o texto a cada tecla (ex.: mascara de R$). */
+  mascara?: (texto: string) => string;
+  /** Estilo extra do input (ex.: altura do campo multilinha). */
+  estiloInput?: StyleProp<TextStyle>;
 }
 
 /**
  * Campo de texto ligado ao react-hook-form, com rótulo, erro e acessibilidade.
  * Usa <Controller> (render prop) em vez de useController: compatível com as regras do React Compiler.
  */
-export function Campo<T extends FieldValues>({ name, control, rotulo, senha = false, dica, ...inputProps }: CampoProps<T>) {
+export function Campo<T extends FieldValues>({ name, control, rotulo, senha = false, dica, mascara, estiloInput, ...inputProps }: CampoProps<T>) {
   const [visivel, setVisivel] = useState(false);
   const [focado, setFocado] = useState(false);
 
@@ -37,7 +41,7 @@ export function Campo<T extends FieldValues>({ name, control, rotulo, senha = fa
               <TextInput
                 ref={ref}
                 value={typeof value === 'string' ? value : ''}
-                onChangeText={onChange}
+                onChangeText={(texto) => onChange(mascara ? mascara(texto) : texto)}
                 onBlur={() => {
                   setFocado(false);
                   onBlur();
@@ -48,7 +52,7 @@ export function Campo<T extends FieldValues>({ name, control, rotulo, senha = fa
                 accessibilityLabel={rotulo}
                 aria-labelledby={`rotulo-${name}`}
                 aria-invalid={erro !== undefined}
-                style={estilos.input}
+                style={[estilos.input, estiloInput]}
                 {...inputProps}
               />
               {senha && (

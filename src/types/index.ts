@@ -141,7 +141,51 @@ export interface Compra {
   ingressos: Ingresso[];
 }
 
-// ─── Relatório (view vw_relatorio_sessoes; confirmar após o B07) ─────────────
+// ─── Relatórios (B07) ────────────────────────────────────────────────────────
+export interface PeriodoRelatorio {
+  /** AAAA-MM-DD, inclusive. */
+  inicio: string;
+  fim: string;
+}
+
+export interface RelatorioSessoes {
+  periodo: PeriodoRelatorio;
+  totais: {
+    quantidadeSessoes: number;
+    capacidadeTotal: number;
+    ingressosVendidos: number;
+    assentosReservados: number;
+    receitaTotal: string;
+    /** Ponderada pela capacidade, ex.: "42.50". */
+    ocupacaoMediaPonderada: string;
+  };
+  sessoes: RelatorioSessao[];
+}
+
+export type AgrupamentoVendas = 'dia' | 'filme' | 'metodo';
+
+export interface CanalVendas {
+  ingressos: number;
+  receita: string;
+}
+
+export interface GrupoVendas {
+  chave: string;
+  rotulo: string;
+  vendas: number;
+  ingressos: number;
+  receita: string;
+  app: CanalVendas;
+  balcao: CanalVendas;
+}
+
+export interface RelatorioVendas {
+  periodo: PeriodoRelatorio;
+  agrupamento: AgrupamentoVendas;
+  totais: Omit<GrupoVendas, 'chave' | 'rotulo'>;
+  grupos: GrupoVendas[];
+}
+
 export interface RelatorioSessao {
   sessaoId: number;
   filmeId: number;

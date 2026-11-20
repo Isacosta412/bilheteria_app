@@ -13,7 +13,22 @@ function MiniAssento({ fundo, borda, espessura, icone, corIcone }: { fundo: stri
 }
 
 /** Legenda com cor + ícone (nunca só cor), igual aos assentos do mapa. */
-export function LegendaAssentos({ mostrarTipos = true }: { mostrarTipos?: boolean }) {
+export function LegendaAssentos({ mostrarTipos = true, modo = 'selecao' }: { mostrarTipos?: boolean; modo?: 'selecao' | 'editor' }) {
+  if (modo === 'editor') {
+    const pcd = VISUAL.selecionado;
+    return (
+      <View style={estilos.legenda} accessibilityRole="summary" accessibilityLabel="Legenda da prévia da sala">
+        <View style={estilos.item}>
+          <MiniAssento fundo="transparent" borda={cores.assento.livreBorda} espessura={1.5} icone="" corIcone={cores.textoSecundario} />
+          <Text style={estilos.texto}>Comum</Text>
+        </View>
+        <View style={estilos.item}>
+          <MiniAssento fundo={pcd.fundo} borda={pcd.borda} espessura={1.5} icone="♿" corIcone={pcd.corIcone} />
+          <Text style={estilos.texto}>PCD (toque para marcar)</Text>
+        </View>
+      </View>
+    );
+  }
   return (
     <View style={estilos.legenda} accessibilityRole="summary" accessibilityLabel="Legenda do mapa de assentos">
       {ESTADOS.map((estado) => {

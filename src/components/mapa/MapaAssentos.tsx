@@ -8,10 +8,13 @@ import { LegendaAssentos } from './LegendaAssentos';
 export const MAX_SELECAO_PADRAO = 10;
 
 interface MapaAssentosProps {
-  mapa: Mapa;
+  /** Só as filas são usadas: o editor de sala passa uma prévia gerada na tela. */
+  mapa: Pick<Mapa, 'filas'>;
   selecionados: number[];
   onAlternar: (assentoId: number) => void;
   maxSelecao?: number;
+  /** "editor": prévia da sala na gerência, o toque marca/desmarca PCD. */
+  modo?: 'selecao' | 'editor';
 }
 
 const TAMANHO_MOBILE = 32; // área de toque mínima do CLAUDE.md
@@ -37,7 +40,8 @@ function larguraNatural(tamanho: number, colunas: number, temCorredor: boolean):
  * Na web o tamanho do assento se ajusta para caber na largura; no celular fica fixo (32 px)
  * com rolagem horizontal.
  */
-export function MapaAssentos({ mapa, selecionados, onAlternar, maxSelecao = MAX_SELECAO_PADRAO }: MapaAssentosProps) {
+export function MapaAssentos({ mapa, selecionados, onAlternar, maxSelecao = MAX_SELECAO_PADRAO, modo = 'selecao' }: MapaAssentosProps) {
+  const editor = modo === 'editor';
   const [largura, setLargura] = useState(0);
   const web = Platform.OS === 'web';
 
@@ -48,7 +52,7 @@ export function MapaAssentos({ mapa, selecionados, onAlternar, maxSelecao = MAX_
   const corredorApos = colunas > LIMITE_CORREDOR ? Math.ceil(colunas / 2) : null;
   const numeros = useMemo(() => Array.from({ length: colunas }, (_, i) => i + 1), [colunas]);
   const conjuntoSelecionados = useMemo(() => new Set(selecionados), [selecionados]);
-  const limiteAtingido = selecionados.length >= maxSelecao;
+  const limiteAtingido = !editor && selecionados.length >= maxSelecao;
 
   let tamanho = TAMANHO_MOBILE;
   if (web && largura > 0) {
@@ -96,6 +100,7 @@ export function MapaAssentos({ mapa, selecionados, onAlternar, maxSelecao = MAX_
                   tamanho={tamanho}
                   limiteAtingido={limiteAtingido}
                   onAlternar={onAlternar}
+                  editor={editor}
                 />
               ) : (
                 <View style={{ width: tamanho, height: tamanho }} />
@@ -126,7 +131,10 @@ export function MapaAssentos({ mapa, selecionados, onAlternar, maxSelecao = MAX_
         </ScrollView>
       )}
 
-      <LegendaAssentos mostrarTipos={mapa.filas.some((f) => f.assentos.some((a) => a.tipo !== 'PADRAO'))} />
+      <LegendaAssentos
+        modo={modo}
+        mostrarTipos={mapa.filas.some((f) => f.assentos.some((a) => a.tipo !== 'PADRAO'))}
+      />
     </View>
   );
 }

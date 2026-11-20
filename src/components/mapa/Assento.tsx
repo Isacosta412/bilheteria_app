@@ -11,26 +11,37 @@ interface AssentoProps {
   /** Já há o máximo de assentos selecionados (só afeta a dica de acessibilidade). */
   limiteAtingido: boolean;
   onAlternar: (assentoId: number) => void;
+  /** Editor de sala: o toque marca/desmarca PCD (os VIP existentes ficam fixos). */
+  editor?: boolean;
 }
 
-function AssentoBase({ assento, fila, selecionado, tamanho, limiteAtingido, onAlternar }: AssentoProps) {
-  const estado = estadoVisual(assento, selecionado);
+function AssentoBase({ assento, fila, selecionado, tamanho, limiteAtingido, onAlternar, editor = false }: AssentoProps) {
+  const pcd = assento.tipo === 'PCD';
+  const estado = editor ? (pcd ? 'selecionado' : 'livre') : estadoVisual(assento, selecionado);
   const visual = VISUAL[estado];
-  const livre = assento.status === 'LIVRE';
-  const tipo = assento.tipo === 'PADRAO' ? '' : `, ${assento.tipo === 'PCD' ? 'para pessoa com deficiência' : 'VIP'}`;
+  const livre = editor ? assento.tipo !== 'VIP' : assento.status === 'LIVRE';
+  const tipo = assento.tipo === 'PADRAO' ? '' : `, ${pcd ? 'para pessoa com deficiência' : 'VIP'}`;
   // Ícone de estado tem prioridade; no assento livre aparece o ícone do tipo (♿ PCD, ★ VIP).
-  const icone = visual.icone || ICONE_TIPO[assento.tipo];
+  // No editor, o PCD marcado mostra ♿ (e não ✓).
+  const icone = editor ? ICONE_TIPO[assento.tipo] : visual.icone || ICONE_TIPO[assento.tipo];
+  const rotulo = editor
+    ? `Fila ${fila}, assento ${assento.numero}, ${pcd ? 'PCD' : assento.tipo === 'VIP' ? 'VIP' : 'comum'}`
+    : `Fila ${fila}, assento ${assento.numero}, ${DESCRICAO_ESTADO[estado]}${tipo}`;
+  let dica: string | undefined;
+  if (editor) dica = livre ? (pcd ? 'Toque para tornar comum' : 'Toque para marcar como PCD') : undefined;
+  else if (livre && !selecionado && limiteAtingido) dica = 'Limite de 10 assentos atingido';
+  const marcado = editor ? pcd : selecionado;
 
   return (
     <Pressable
       onPress={() => onAlternar(assento.assentoId)}
       disabled={!livre}
       accessibilityRole="checkbox"
-      accessibilityState={{ checked: selecionado, disabled: !livre }}
-      aria-checked={selecionado}
+      accessibilityState={{ checked: marcado, disabled: !livre }}
+      aria-checked={marcado}
       aria-disabled={!livre}
-      accessibilityLabel={`Fila ${fila}, assento ${assento.numero}, ${DESCRICAO_ESTADO[estado]}${tipo}`}
-      accessibilityHint={livre && !selecionado && limiteAtingido ? 'Limite de 10 assentos atingido' : undefined}
+      accessibilityLabel={rotulo}
+      accessibilityHint={dica}
       hitSlop={2}
       style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
         estilos.assento,
@@ -67,6 +78,7 @@ export const Assento = memo(
     a.selecionado === b.selecionado &&
     a.tamanho === b.tamanho &&
     a.limiteAtingido === b.limiteAtingido &&
+    a.editor === b.editor &&
     a.onAlternar === b.onAlternar,
 );
 

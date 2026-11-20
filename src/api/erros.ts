@@ -64,6 +64,10 @@ export const MENSAGENS_ERRO: Record<string, string> = {
   INGRESSO_INVALIDO: 'Ingresso inválido.',
   INGRESSO_JA_UTILIZADO: 'Este ingresso já foi utilizado.',
   INGRESSO_FORA_DO_HORARIO: 'Fora do horário da sessão.',
+
+  // relatórios (B07)
+  PERIODO_INVALIDO: 'A data inicial precisa ser anterior ou igual à data final.',
+  PERIODO_MUITO_LONGO: 'O período máximo do relatório é de 1 ano.',
 };
 
 export const MENSAGEM_SEM_CONEXAO = 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.';

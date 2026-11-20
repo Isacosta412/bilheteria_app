@@ -25,8 +25,8 @@ app/
   (operador)/                 tabs: Bilheteria | Validar | Gerência | Relatórios
     balcao/...                venda presencial (reusa o mapa de assentos)
     validar.tsx               digitar o código ou ler o QR
-    gerencia/filmes, salas, sessoes (listas + formulários)
-    relatorios.tsx
+    gerencia/_layout.tsx      Stack: hub (index) + filmes/, salas/, sessoes/ (listas + formulários)
+    relatorios.tsx            totais, gráfico de ocupação, tabela ordenável, vendas App × Balcão, CSV
 src/
   api/          cliente axios (baseURL de EXPO_PUBLIC_API_URL, interceptor do token, tratamento de 401) + um arquivo por recurso
   types/        tipos que espelham os DTOs da API (nunca use any)

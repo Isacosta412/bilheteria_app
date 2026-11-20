@@ -28,8 +28,8 @@ export default function LayoutOperador() {
         options={{ title: 'Validar', tabBarIcon: ({ focused }) => <IconeAba simbolo="✅" focado={focused} /> }}
       />
       <Tabs.Screen
-        name="gerencia/index"
-        options={{ title: 'Gerência', tabBarIcon: ({ focused }) => <IconeAba simbolo="🛠️" focado={focused} /> }}
+        name="gerencia"
+        options={{ title: 'Gerência', headerShown: false, tabBarIcon: ({ focused }) => <IconeAba simbolo="🛠️" focado={focused} /> }}
       />
       <Tabs.Screen
         name="relatorios"

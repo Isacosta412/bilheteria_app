@@ -35,6 +35,19 @@ export const cores = {
     reservado: '#FACC15',
     vendido: '#4B4B5A',
   },
+
+  /**
+   * Gráficos dos relatórios (F06). Validados com o validador da skill dataviz sobre a superfície
+   * #1A1A23: faixa de luminosidade, croma, separação para daltonismo (ΔE 26,8) e contraste ≥ 3:1.
+   * Série única (ocupação) = azul; App × Balcão = azul × laranja, sempre com legenda e rótulo em texto.
+   */
+  grafico: {
+    serie: '#3987E5',
+    app: '#3987E5',
+    balcao: '#D95926',
+    grade: '#2C2C38',
+    trilha: '#24242F',
+  },
 } as const;
 
 export type Cores = typeof cores;
