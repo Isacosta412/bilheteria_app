@@ -33,6 +33,7 @@ export default function LayoutCliente() {
       <Stack.Screen name="filme/[id]" options={{ title: 'Filme' }} />
       <Stack.Screen name="sessao/[id]" options={{ title: 'Escolha seus assentos' }} />
       <Stack.Screen name="checkout/[reservaId]" options={{ title: 'Pagamento' }} />
+      <Stack.Screen name="ingressos/[codigo]" options={{ title: 'Ingresso' }} />
     </Stack>
   );
 }

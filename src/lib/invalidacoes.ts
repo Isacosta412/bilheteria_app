@@ -14,6 +14,7 @@ export async function invalidarAposCompra(queryClient: QueryClient, sessaoId?: n
     queryClient.invalidateQueries({ queryKey: ['sessao'] }),
     queryClient.invalidateQueries({ queryKey: ['reserva'] }),
     queryClient.invalidateQueries({ queryKey: chaves.reservasMinhas() }),
-    queryClient.invalidateQueries({ queryKey: chaves.ingressosMeus() }),
+    // prefixo ['ingressos']: a lista "meus" e cada ingresso aberto
+    queryClient.invalidateQueries({ queryKey: ['ingressos'] }),
   ]);
 }

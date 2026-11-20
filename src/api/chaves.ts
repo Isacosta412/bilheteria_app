@@ -14,4 +14,5 @@ export const chaves = {
   reserva: (id: number) => ['reserva', id] as const,
   reservasMinhas: () => ['reservas', 'minhas'] as const,
   ingressosMeus: () => ['ingressos', 'meus'] as const,
+  ingresso: (codigo: string) => ['ingressos', 'codigo', codigo] as const,
 };

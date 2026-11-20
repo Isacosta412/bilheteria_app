@@ -14,6 +14,21 @@ export function formatarDiaHora(iso: string): string {
   return format(parseISO(iso), "EEEEEE, dd/MM '·' HH:mm", { locale: ptBR });
 }
 
+/** "24/11 19:12" */
+export function formatarDataHoraCurta(iso: string): string {
+  return format(parseISO(iso), 'dd/MM HH:mm', { locale: ptBR });
+}
+
+/** Código do ingresso em grupos de 4 para facilitar a digitação: "K7PX3MQ92A" → "K7PX 3MQ9 2A". */
+export function formatarCodigo(codigo: string): string {
+  return codigo.replace(/(.{4})(?=.)/g, '$1 ');
+}
+
+/** Código soletrado para leitores de tela: "K, 7, P, X, ...". */
+export function soletrarCodigo(codigo: string): string {
+  return codigo.split('').join(', ');
+}
+
 /** "19:30" */
 export function formatarHora(iso: string): string {
   return format(parseISO(iso), 'HH:mm', { locale: ptBR });
