@@ -16,7 +16,7 @@ import { MensagemErro } from '@/components/MensagemErro';
 import { Tela } from '@/components/Tela';
 import { useToast } from '@/components/Toast';
 import { invalidarAposCompra } from '@/lib/invalidacoes';
-import { diaIso, formatarHora, formatarPreco, lugaresLivres, rotuloDia } from '@/lib/formatacao';
+import { diaIso, formatarHora, formatarPreco, lugaresLivres, plural, primeiroNumero, rotuloDia } from '@/lib/formatacao';
 import { cores, espacos, tipografia } from '@/theme';
 import type { Sessao } from '@/types';
 
@@ -72,9 +72,14 @@ export default function ListaSessoes() {
       void queryClient.invalidateQueries({ queryKey: ['relatorios'] });
     },
     onError: (erro) => {
-      // A mensagem da API diz quantos ingressos foram vendidos: mais útil que o texto genérico.
-      const especifica = codigoDoErro(erro) === 'SESSAO_COM_INGRESSOS' ? mensagemDaApi(erro) : undefined;
-      toast.mostrar(especifica ?? traduzirErro(erro), 'erro');
+      // A API diz quantos ingressos foram vendidos ("2 ingresso(s)"): o app reescreve com o plural certo.
+      const vendidos = codigoDoErro(erro) === 'SESSAO_COM_INGRESSOS' ? primeiroNumero(mensagemDaApi(erro)) : null;
+      toast.mostrar(
+        vendidos !== null
+          ? `A sessão já tem ${plural(vendidos, 'ingresso vendido', 'ingressos vendidos')} e não pode ser cancelada.`
+          : traduzirErro(erro),
+        'erro',
+      );
     },
     onSettled: () => setAlvo(null),
   });

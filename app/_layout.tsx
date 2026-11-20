@@ -1,13 +1,15 @@
-import { Stack } from 'expo-router';
+import { router, Stack, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
+import { Botao } from '@/components/Botao';
 import { Carregando } from '@/components/Carregando';
 import { ToastProvider } from '@/components/Toast';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { useAuth } from '@/hooks/useAuth';
-import { cores } from '@/theme';
+import { cores, espacos, tipografia } from '@/theme';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +50,35 @@ function Navegacao() {
     </Stack>
   );
 }
+
+/**
+ * Erro inesperado ao desenhar uma tela: mensagem amigável, sem stack trace nem texto técnico
+ * (o Expo Router usa este export no lugar da tela de erro padrão).
+ */
+export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
+  return (
+    <SafeAreaProvider>
+      <View style={estilos.erro}>
+        <Text style={estilos.erroIcone} aria-hidden>
+          🎞️
+        </Text>
+        <Text style={estilos.erroTitulo} accessibilityRole="header">
+          Algo deu errado nesta tela
+        </Text>
+        <Text style={estilos.erroTexto}>Tente de novo. Se continuar, volte ao início.</Text>
+        <Botao titulo="Tentar de novo" onPress={() => void retry()} />
+        <Botao titulo="Voltar ao início" variante="texto" onPress={() => router.replace('/')} />
+      </View>
+    </SafeAreaProvider>
+  );
+}
+
+const estilos = StyleSheet.create({
+  erro: { flex: 1, backgroundColor: cores.fundo, alignItems: 'center', justifyContent: 'center', padding: espacos.xl, gap: espacos.md },
+  erroIcone: { fontSize: 44 },
+  erroTitulo: { ...tipografia.subtitulo, color: cores.texto, textAlign: 'center' },
+  erroTexto: { ...tipografia.corpo, color: cores.textoSecundario, textAlign: 'center', maxWidth: 420 },
+});
 
 export default function LayoutRaiz() {
   return (

@@ -93,3 +93,14 @@ export const ROTULO_CLASSIFICACAO: Record<Classificacao, { sigla: string; extens
 export function formatarPercentual(valor: string | number): string {
   return `${Number(valor).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`;
 }
+
+/** plural(2, 'ingresso vendido', 'ingressos vendidos') → "2 ingressos vendidos" */
+export function plural(quantidade: number, singular: string, varios: string): string {
+  return `${quantidade} ${quantidade === 1 ? singular : varios}`;
+}
+
+/** Primeiro número de um texto (ex.: a quantidade dentro de uma mensagem da API). */
+export function primeiroNumero(texto: string | undefined): number | null {
+  const m = /\d+/.exec(texto ?? '');
+  return m ? Number(m[0]) : null;
+}

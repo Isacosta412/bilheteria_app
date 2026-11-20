@@ -24,6 +24,8 @@
       "output": "single",
       "favicon": "./assets/images/favicon.png",
       "name": "Bilheteria",
+      "lang": "pt-BR",
+      "description": "Bilheteria de cinema com marcação de assentos – Trabalho Final de Programação II + Banco de Dados II (Unoesc)",
       "themeColor": "#0E0E13",
       "backgroundColor": "#0E0E13"
     },

@@ -1,0 +1,54 @@
+# Publica o app web no Netlify a cada push na main.
+# Configure em Settings → Secrets and variables → Actions:
+#   - Secrets:   NETLIFY_AUTH_TOKEN, NETLIFY_SITE_ID
+#   - Variables: EXPO_PUBLIC_API_URL (URL da API em produção, ex.: https://api.exemplo.com)
+# Enquanto os segredos não existirem, o workflow só valida e gera o build (não publica).
+name: Publicar web
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-web
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    env:
+      EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL }}
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Checar tipos
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Avisar se a URL da API não foi configurada
+        if: env.EXPO_PUBLIC_API_URL == ''
+        run: echo "::warning::A variável EXPO_PUBLIC_API_URL não está definida; o app publicado não saberá onde está a API."
+
+      - name: Gerar o build web (dist/)
+        run: npm run build:web
+
+      - name: Publicar no Netlify
+        if: env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != ''
+        run: npx --yes netlify-cli@17 deploy --prod --dir dist --message "Deploy ${{ github.sha }}"
+
+      - name: Deploy pulado (segredos ausentes)
+        if: env.NETLIFY_AUTH_TOKEN == '' || env.NETLIFY_SITE_ID == ''
+        run: echo "::notice::NETLIFY_AUTH_TOKEN/NETLIFY_SITE_ID não configurados; build gerado, mas não publicado."

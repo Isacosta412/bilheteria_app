@@ -16,6 +16,7 @@ import { MapaAssentos } from '@/components/MapaAssentos';
 import { MensagemErro } from '@/components/MensagemErro';
 import { Tela } from '@/components/Tela';
 import { useToast } from '@/components/Toast';
+import { plural, primeiroNumero } from '@/lib/formatacao';
 import { dentroDaGrade, estruturaDaSala, iguais, montarPrevia, posicaoDaChave } from '@/lib/salas';
 import { MAX_ASSENTOS_POR_FILA, MAX_FILAS, salaSchema, type FormSala } from '@/schemas/sala';
 import { cores, espacos, raios, tipografia } from '@/theme';
@@ -115,7 +116,12 @@ function Formulario({ sala }: { sala?: SalaDetalhe }) {
     onError: (erro, variaveis) => {
       const codigo = codigoDoErro(erro);
       if (codigo && LAYOUT_BLOQUEADO.has(codigo)) {
-        setBloqueio({ mensagem: mensagemDaApi(erro) ?? traduzirErro(erro), nome: variaveis.nome });
+        const futuras = codigo === 'SALA_COM_SESSOES_FUTURAS' ? primeiroNumero(mensagemDaApi(erro)) : null;
+        const mensagem =
+          futuras !== null
+            ? `Esta sala tem ${plural(futuras, 'sessão futura agendada', 'sessões futuras agendadas')}.`
+            : 'Esta sala já teve sessões, e os assentos fazem parte do histórico de vendas.';
+        setBloqueio({ mensagem, nome: variaveis.nome });
         return;
       }
       if (codigo === 'SALA_NOME_EM_USO') {
@@ -208,8 +214,8 @@ function Formulario({ sala }: { sala?: SalaDetalhe }) {
               carregando={salvar.isPending}
               onPress={() => {
                 if (!bloqueio) return;
-                salvar.mutate({ nome: bloqueio.nome });
-                setBloqueio(null);
+                // O diálogo fica aberto (com o botão carregando) até a resposta; o sucesso já volta para a lista.
+                salvar.mutate({ nome: bloqueio.nome }, { onSettled: () => setBloqueio(null) });
               }}
             />
           </>
