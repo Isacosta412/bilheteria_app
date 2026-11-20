@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { Carregando } from '@/components/Carregando';
+import { ToastProvider } from '@/components/Toast';
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { useAuth } from '@/hooks/useAuth';
 import { cores } from '@/theme';
@@ -53,8 +54,10 @@ export default function LayoutRaiz() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <StatusBar style="light" />
-          <Navegacao />
+          <ToastProvider>
+            <StatusBar style="light" />
+            <Navegacao />
+          </ToastProvider>
         </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>

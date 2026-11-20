@@ -56,9 +56,12 @@ export const MENSAGENS_ERRO: Record<string, string> = {
   RESERVA_NAO_PENDENTE: 'Esta reserva não está mais pendente.',
 
   // pagamento e ingressos (B06)
-  RESERVA_EXPIRADA: 'O tempo da sua reserva acabou. Escolha os assentos novamente.',
+  RESERVA_EXPIRADA: 'O tempo da sua reserva acabou e os assentos foram liberados. Escolha novamente.',
   RESERVA_JA_PAGA: 'Esta reserva já foi paga.',
-  INGRESSO_NAO_ENCONTRADO: 'Ingresso inválido.',
+  RESERVA_CANCELADA: 'Esta reserva foi cancelada.',
+  ASSENTOS_DIVERGENTES: 'Os assentos desta reserva mudaram. Faça uma nova reserva.',
+  FALHA_SIMULADA: 'Falha simulada no pagamento: nada foi cobrado.',
+  INGRESSO_INVALIDO: 'Ingresso inválido.',
   INGRESSO_JA_UTILIZADO: 'Este ingresso já foi utilizado.',
   INGRESSO_FORA_DO_HORARIO: 'Fora do horário da sessão.',
 };

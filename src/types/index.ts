@@ -94,6 +94,8 @@ export interface Reserva {
   reservaId: number;
   status: StatusReserva;
   canal: CanalReserva;
+  /** Só nas vendas de balcão, quando o operador informa. */
+  nomeComprador: string | null;
   total: string;
   expiraEm: string;
   criadoEm: string;
@@ -102,15 +104,41 @@ export interface Reserva {
   assentos: { assentoId: number; fila: string; numero: number; tipo: TipoAssento }[];
 }
 
-// ─── Pagamento e ingresso (confirmar após o B06) ─────────────────────────────
+// ─── Pagamento e ingresso (formato real da API, B06) ─────────────────────────
 export type MetodoPagamento = 'PIX' | 'CARTAO' | 'DINHEIRO';
+
+export type StatusIngresso = 'VALIDO' | 'UTILIZADO' | 'SESSAO_ENCERRADA';
 
 export interface Ingresso {
   codigo: string;
+  status: StatusIngresso;
+  fila: string;
+  numero: number;
+  tipo: TipoAssento;
+  /** Início da sessão. */
+  dataHora: string;
+  sessao: { id: number; dataHora: string; terminoPrevisto: string };
+  filme: { id: number; titulo: string; classificacao: Classificacao };
+  sala: { id: number; nome: string };
   emitidoEm: string;
   utilizadoEm: string | null;
-  sessao: { id: number; dataHora: string; filmeTitulo: string; salaNome: string };
-  assento: { fila: string; numero: number; tipo: TipoAssento };
+}
+
+export interface IngressosDaSessao {
+  sessao: {
+    id: number;
+    dataHora: string;
+    terminoPrevisto: string;
+    filme: Ingresso['filme'];
+    sala: Ingresso['sala'];
+  };
+  ingressos: Ingresso[];
+}
+
+/** Resposta do pagamento (e da venda no balcão). */
+export interface Compra {
+  reserva: Reserva;
+  ingressos: Ingresso[];
 }
 
 // ─── Relatório (view vw_relatorio_sessoes; confirmar após o B07) ─────────────
