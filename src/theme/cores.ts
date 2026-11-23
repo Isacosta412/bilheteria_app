@@ -106,6 +106,9 @@ export const cores = {
   /** Leitor de QR: fundo da câmera e faixas translúcidas sobre a imagem. */
   camera: { fundo: paleta.preto, faixa: 'rgba(0,0,0,0.55)', texto: paleta.branco },
 
+  /** Cortina da comemoração (login e pagamento): vinho bem forte, quase opaco. */
+  cortina: 'rgba(38, 9, 8, 0.97)',
+
   /** Fundo escurecido atrás de diálogos e seletores. */
   sobreposicao: 'rgba(0,0,0,0.7)',
   sombra: paleta.preto,

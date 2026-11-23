@@ -10,8 +10,8 @@ import { buscarReserva, cancelarReserva, pagarReserva } from '@/api/reservas';
 import { Botao } from '@/components/Botao';
 import { FaixaListrada } from '@/components/Cabecalho';
 import { Carregando } from '@/components/Carregando';
+import { useCortinaPipoca } from '@/components/CortinaPipoca';
 import { Dialogo } from '@/components/Dialogo';
-import { ExplosaoPipoca } from '@/components/ExplosaoPipoca';
 import { EstadoVazio } from '@/components/EstadoVazio';
 import { FundoCinema } from '@/components/FundoCinema';
 import { MensagemErro } from '@/components/MensagemErro';
@@ -29,6 +29,7 @@ type Metodo = 'PIX' | 'CARTAO';
 export default function Checkout() {
   const router = useRouter();
   const toast = useToast();
+  const cortina = useCortinaPipoca();
   const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ reservaId: string }>();
   const reservaId = Number(params.reservaId);
@@ -51,9 +52,16 @@ export default function Checkout() {
 
   const pagamento = useMutation({
     mutationFn: () => pagarReserva(reservaId, metodo),
-    onSuccess: async (resultado) => {
-      setCompra(resultado);
-      await invalidarAposCompra(queryClient, resultado.reserva.sessao.id);
+    onSuccess: (resultado) => {
+      // Cortina de comemoração: a tela escurece, o balde estoura e, com tudo coberto, a tela de
+      // "pagamento aprovado" entra por baixo (as listas são atualizadas nesse mesmo momento).
+      cortina.mostrar({
+        texto: 'Pagamento aprovado! 🍿',
+        aoCobrir: () => {
+          setCompra(resultado);
+          void invalidarAposCompra(queryClient, resultado.reserva.sessao.id);
+        },
+      });
     },
     onError: async (erro) => {
       const codigo = codigoDoErro(erro);
@@ -144,8 +152,6 @@ export default function Checkout() {
             />
           </View>
         </Tela>
-        {/* Só comemora o pagamento feito agora (ao reabrir uma reserva já paga, não). */}
-        <ExplosaoPipoca ativo={compra !== null} deBaixo quantidade={40} duracaoMs={1800} alcance={0.85} />
       </View>
     );
   }

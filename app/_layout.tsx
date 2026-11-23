@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { Botao } from '@/components/Botao';
 import { Carregando } from '@/components/Carregando';
+import { CortinaProvider } from '@/components/CortinaPipoca';
 import { LogoPipocou } from '@/components/LogoPipocou';
 import { ToastProvider } from '@/components/Toast';
 import { AuthProvider } from '@/contexts/AuthProvider';
@@ -91,8 +92,10 @@ export default function LayoutRaiz() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <ToastProvider>
-            <StatusBar style="light" />
-            <Navegacao />
+            <CortinaProvider>
+              <StatusBar style="light" />
+              <Navegacao />
+            </CortinaProvider>
           </ToastProvider>
         </AuthProvider>
       </QueryClientProvider>
