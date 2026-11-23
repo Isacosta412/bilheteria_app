@@ -8,16 +8,19 @@ import { chaves } from '@/api/chaves';
 import { codigoDoErro, traduzirErro } from '@/api/client';
 import { buscarReserva, cancelarReserva, pagarReserva } from '@/api/reservas';
 import { Botao } from '@/components/Botao';
+import { FaixaListrada } from '@/components/Cabecalho';
 import { Carregando } from '@/components/Carregando';
 import { Dialogo } from '@/components/Dialogo';
 import { ExplosaoPipoca } from '@/components/ExplosaoPipoca';
 import { EstadoVazio } from '@/components/EstadoVazio';
+import { FundoCinema } from '@/components/FundoCinema';
 import { MensagemErro } from '@/components/MensagemErro';
 import { Tela } from '@/components/Tela';
 import { useToast } from '@/components/Toast';
 import { useContagemRegressiva } from '@/hooks/useContagemRegressiva';
 import { invalidarAposCompra } from '@/lib/invalidacoes';
 import { formatarDiaHora, formatarPreco } from '@/lib/formatacao';
+import { explicacaoReserva } from '@/lib/reserva';
 import { AREA_TOQUE_MINIMA, LARGURA_MAXIMA, cores, espacos, raios, tipografia } from '@/theme';
 import type { Compra } from '@/types';
 
@@ -106,6 +109,7 @@ export default function Checkout() {
     const quantidade = compra?.ingressos.length ?? reserva.assentos.length;
     return (
       <View style={estilos.raiz}>
+        <FundoCinema />
         <Tela centralizar>
           <View style={estilos.sucesso}>
             <Text style={estilos.sucessoSelo}>Pagamento aprovado</Text>
@@ -164,10 +168,12 @@ export default function Checkout() {
 
   return (
     <View style={estilos.raiz}>
+      <FundoCinema />
       <ScrollView contentContainerStyle={estilos.rolagem}>
         <View style={estilos.conteudo}>
           {/* Contagem regressiva */}
           <View style={[estilos.cronometro, contagem.urgente && estilos.cronometroUrgente]}>
+            <FaixaListrada altura={6} estilo={estilos.faixaTopo} />
             <Text style={estilos.cronometroRotulo}>Tempo para pagar</Text>
             <Text
               style={[estilos.cronometroTempo, contagem.urgente && estilos.textoUrgente]}
@@ -179,6 +185,7 @@ export default function Checkout() {
             <Text style={estilos.oculto} accessibilityLiveRegion="polite" aria-live="polite">
               {contagem.urgente ? 'Menos de 1 minuto para pagar' : `${contagem.minutos} minutos restantes`}
             </Text>
+            {!expirou && reserva.assentos.length > 0 && <Text style={estilos.cronometroExplicacao}>{explicacaoReserva(reserva)}</Text>}
           </View>
 
           {/* Resumo (tudo vindo da API) */}
@@ -292,10 +299,21 @@ const estilos = StyleSheet.create({
     borderWidth: 1,
     borderColor: cores.borda,
     paddingVertical: espacos.lg,
+    paddingTop: espacos.lg + 6,
+    overflow: 'hidden',
   },
+  faixaTopo: { position: 'absolute', top: 0, left: 0, right: 0 },
   cronometroUrgente: { borderColor: cores.erro, backgroundColor: cores.fundoErro },
   cronometroRotulo: { ...tipografia.legenda, color: cores.textoSecundario, textTransform: 'uppercase', letterSpacing: 1 },
   cronometroTempo: { fontSize: 48, fontWeight: '800', color: cores.texto, fontVariant: ['tabular-nums'] },
+  cronometroExplicacao: {
+    ...tipografia.legenda,
+    color: cores.textoSecundario,
+    textAlign: 'center',
+    marginTop: espacos.sm,
+    paddingHorizontal: espacos.lg,
+    maxWidth: 440,
+  },
   textoUrgente: { color: cores.erro },
   oculto: { position: 'absolute', width: 1, height: 1, overflow: 'hidden', opacity: 0 },
   cartao: {

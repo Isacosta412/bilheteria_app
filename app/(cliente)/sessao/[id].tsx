@@ -9,6 +9,7 @@ import { listarMinhasReservas, reservar } from '@/api/reservas';
 import { Botao } from '@/components/Botao';
 import { Esqueleto } from '@/components/Esqueleto';
 import { EstadoVazio } from '@/components/EstadoVazio';
+import { FundoCinema } from '@/components/FundoCinema';
 import { MapaAssentos } from '@/components/MapaAssentos';
 import { MensagemErro } from '@/components/MensagemErro';
 import { SeloClassificacao } from '@/components/SeloClassificacao';
@@ -18,6 +19,7 @@ import { useMapaAssentos } from '@/hooks/useMapaAssentos';
 import { useSelecaoAssentos } from '@/hooks/useSelecaoAssentos';
 import { invalidarAposCompra } from '@/lib/invalidacoes';
 import { formatarDiaHora, formatarPreco } from '@/lib/formatacao';
+import { mensagemReservaFeita } from '@/lib/reserva';
 import { LARGURA_MAXIMA, cores, espacos, raios, tipografia } from '@/theme';
 
 export default function TelaSessao() {
@@ -48,8 +50,11 @@ export default function TelaSessao() {
   const reservaMutation = useMutation({
     mutationFn: () => reservar({ sessaoId, assentoIds: selecionados }),
     onSuccess: async (reserva) => {
-      await invalidarAposCompra(queryClient, sessaoId);
+      // Limpa a seleção ANTES de recarregar o mapa: os assentos que a própria pessoa reservou
+      // deixam de estar livres e não podem disparar o aviso de "reservado por outra pessoa".
       limpar();
+      toast.mostrar(mensagemReservaFeita(reserva), 'sucesso');
+      await invalidarAposCompra(queryClient, sessaoId);
       router.replace({ pathname: '/checkout/[reservaId]', params: { reservaId: String(reserva.reservaId) } });
     },
     onError: (erro) => {
@@ -103,6 +108,7 @@ export default function TelaSessao() {
 
   return (
     <View style={estilos.raiz}>
+      <FundoCinema />
       <ScrollView contentContainerStyle={estilos.rolagem}>
         <View style={estilos.conteudo}>
           <View style={estilos.cabecalho}>

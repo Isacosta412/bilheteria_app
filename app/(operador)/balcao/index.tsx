@@ -6,6 +6,7 @@ import { venderNoBalcao } from '@/api/balcao';
 import { codigoDoErro, traduzirErro } from '@/api/client';
 import { Botao } from '@/components/Botao';
 import { Carregando } from '@/components/Carregando';
+import { FundoCinema } from '@/components/FundoCinema';
 import { EscolhaSessao } from '@/components/balcao/EscolhaSessao';
 import { IndicadorEtapas } from '@/components/balcao/IndicadorEtapas';
 import { PagamentoBalcao, type ConfirmacaoBalcao } from '@/components/balcao/PagamentoBalcao';
@@ -83,6 +84,7 @@ export default function Bilheteria() {
 
   return (
     <View style={estilos.raiz}>
+      <FundoCinema />
       <ScrollView contentContainerStyle={estilos.rolagem} keyboardShouldPersistTaps="handled">
         <View style={estilos.conteudo}>
           <View style={estilos.topo}>

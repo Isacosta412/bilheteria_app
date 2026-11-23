@@ -1,7 +1,9 @@
 import { Redirect, Stack } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
 import { rotaInicial } from '@/lib/rotas';
+import { LogoCabecalho } from '@/components/Cabecalho';
 import { cores } from '@/theme';
+import { opcoesCabecalho } from '@/theme/navegacao';
 
 // As abas ficam embaixo de tudo: abrindo /filme/3 direto pela URL, o "voltar" leva para elas.
 export const unstable_settings = {
@@ -21,10 +23,8 @@ export default function LayoutCliente() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: cores.superficie },
-        headerTintColor: cores.texto,
-        headerTitleStyle: { fontWeight: '700' },
-        headerShadowVisible: false,
+        ...opcoesCabecalho,
+        headerRight: () => <LogoCabecalho />,
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: cores.fundo },
       }}

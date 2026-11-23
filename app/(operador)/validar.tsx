@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { codigoDoErro, detalhesDoErro, mensagemDaApi, traduzirErro } from '@/api/client';
 import { validarIngresso } from '@/api/ingressos';
 import { Botao } from '@/components/Botao';
+import { FundoCinema } from '@/components/FundoCinema';
 import { Tela } from '@/components/Tela';
 import { LeitorQr } from '@/components/validacao/LeitorQr';
 import { ResultadoValidacao, type Resultado } from '@/components/validacao/ResultadoValidacao';
@@ -102,6 +103,7 @@ export default function Validar() {
 
   return (
     <View style={estilos.raiz}>
+      <FundoCinema />
       <Tela centralizar>
         <View style={estilos.cartao}>
           <Text style={estilos.titulo} accessibilityRole="header">

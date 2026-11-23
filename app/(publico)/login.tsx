@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { traduzirErro } from '@/api/client';
 import { Botao } from '@/components/Botao';
 import { Campo } from '@/components/Campo';
+import { FaixaListrada } from '@/components/Cabecalho';
 import { ExplosaoPipoca, type Ponto } from '@/components/ExplosaoPipoca';
 import { LogoPipocou } from '@/components/LogoPipocou';
 import { MensagemErro } from '@/components/MensagemErro';
@@ -78,6 +79,7 @@ export default function TelaLogin() {
     <View ref={raizRef} style={estilos.raiz} onLayout={medirOrigem}>
       <Tela centralizar bordas={['top', 'left', 'right', 'bottom']}>
         <View style={estilos.cartao}>
+          <FaixaListrada altura={8} estilo={estilos.faixaTopo} />
           <Animated.View ref={logoRef} style={[estilos.logo, estiloLogo]} onLayout={medirOrigem}>
             <LogoPipocou tamanho={76} />
           </Animated.View>
@@ -139,6 +141,7 @@ export default function TelaLogin() {
 }
 
 const estilos = StyleSheet.create({
+  faixaTopo: { position: 'absolute', top: 0, left: 0, right: 0 },
   cartao: {
     width: '100%',
     maxWidth: 420,
@@ -148,6 +151,8 @@ const estilos = StyleSheet.create({
     padding: espacos.xl,
     borderWidth: 1,
     borderColor: cores.borda,
+    overflow: 'hidden',
+    paddingTop: espacos.xl + 8,
   },
   raiz: { flex: 1, backgroundColor: cores.fundo },
   logo: { alignSelf: 'center' },

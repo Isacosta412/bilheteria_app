@@ -1,4 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { FundoCinema } from '@/components/FundoCinema';
 import { cores, espacos, tipografia } from '@/theme';
 
 interface CarregandoProps {
@@ -15,6 +16,7 @@ export function Carregando({ mensagem = 'Carregando…', telaCheia = false }: Ca
       accessibilityLabel={mensagem}
       aria-busy
     >
+      {telaCheia && <FundoCinema />}
       <ActivityIndicator size="large" color={cores.primaria} />
       <Text style={estilos.texto}>{mensagem}</Text>
     </View>

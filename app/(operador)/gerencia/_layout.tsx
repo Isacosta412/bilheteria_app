@@ -1,7 +1,9 @@
 import { Stack } from 'expo-router';
 import { Botao } from '@/components/Botao';
 import { useAuth } from '@/hooks/useAuth';
+import { TituloComLogo } from '@/components/Cabecalho';
 import { cores } from '@/theme';
+import { opcoesCabecalho } from '@/theme/navegacao';
 
 // Abrindo /gerencia/filmes direto pela URL, o "voltar" leva para o hub.
 export const unstable_settings = {
@@ -14,10 +16,7 @@ export default function LayoutGerencia() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: cores.superficie },
-        headerTintColor: cores.texto,
-        headerTitleStyle: { fontWeight: '700' },
-        headerShadowVisible: false,
+        ...opcoesCabecalho,
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: cores.fundo },
       }}
@@ -26,6 +25,8 @@ export default function LayoutGerencia() {
         name="index"
         options={{
           title: 'Gerência',
+          headerTitle: ({ children }) => <TituloComLogo>{children}</TituloComLogo>,
+          headerTitleAlign: 'left',
           headerRight: () => <Botao titulo="Sair" variante="texto" onPress={() => void sair()} accessibilityLabel="Sair da conta" />,
         }}
       />

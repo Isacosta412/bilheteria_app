@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { codigoDoErro, errosDeCampo, traduzirErro } from '@/api/client';
 import { Botao } from '@/components/Botao';
 import { Campo } from '@/components/Campo';
+import { FaixaListrada } from '@/components/Cabecalho';
 import { LogoPipocou } from '@/components/LogoPipocou';
 import { MensagemErro } from '@/components/MensagemErro';
 import { Tela } from '@/components/Tela';
@@ -52,6 +53,7 @@ export default function TelaCadastro() {
   return (
     <Tela centralizar bordas={['top', 'left', 'right', 'bottom']}>
       <View style={estilos.cartao}>
+        <FaixaListrada altura={8} estilo={estilos.faixaTopo} />
         <LogoPipocou tamanho={56} />
         <Text style={estilos.slogan}>Teu lugar, tua pipoca, tua sessão.</Text>
         <Text style={estilos.titulo} accessibilityRole="header">
@@ -118,6 +120,7 @@ export default function TelaCadastro() {
 }
 
 const estilos = StyleSheet.create({
+  faixaTopo: { position: 'absolute', top: 0, left: 0, right: 0 },
   cartao: {
     width: '100%',
     maxWidth: 420,
@@ -127,6 +130,8 @@ const estilos = StyleSheet.create({
     padding: espacos.xl,
     borderWidth: 1,
     borderColor: cores.borda,
+    overflow: 'hidden',
+    paddingTop: espacos.xl + 8,
   },
   titulo: { ...tipografia.titulo, color: cores.texto, textAlign: 'center', marginBottom: espacos.lg },
   slogan: {

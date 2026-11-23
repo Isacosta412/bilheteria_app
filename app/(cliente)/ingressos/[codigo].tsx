@@ -10,6 +10,7 @@ import { traduzirErro } from '@/api/client';
 import { buscarIngresso } from '@/api/ingressos';
 import { Carregando } from '@/components/Carregando';
 import { EstadoVazio } from '@/components/EstadoVazio';
+import { FundoCinema } from '@/components/FundoCinema';
 import { MensagemErro } from '@/components/MensagemErro';
 import { SeloClassificacao } from '@/components/SeloClassificacao';
 import { SeloStatusIngresso } from '@/components/SeloStatusIngresso';
@@ -91,6 +92,7 @@ export default function DetalheIngresso() {
 
   return (
     <View style={estilos.raiz}>
+      <FundoCinema />
       <ScrollView
         contentContainerStyle={estilos.rolagem}
         refreshControl={<RefreshControl refreshing={atualizando} onRefresh={() => void atualizar()} tintColor={cores.primaria} />}

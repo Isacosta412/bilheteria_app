@@ -21,25 +21,29 @@ export function useSelecaoAssentos(mapa: MapaAssentos | undefined, maxSelecao = 
   const toast = useToast();
   const [escolhidos, setEscolhidos] = useState<number[]>([]);
 
-  const { livres, rotulos } = useMemo(() => {
+  const { livres, meus, rotulos } = useMemo(() => {
     const livresSet = new Set<number>();
+    const meusSet = new Set<number>();
     const rotulosMap = new Map<number, string>();
     for (const { fila, assentos } of mapa?.filas ?? []) {
       for (const a of assentos) {
         rotulosMap.set(a.assentoId, `${fila}${a.numero}`);
         if (a.status === 'LIVRE') livresSet.add(a.assentoId);
+        if (a.minhaReserva) meusSet.add(a.assentoId);
       }
     }
-    return { livres: livresSet, rotulos: rotulosMap };
+    return { livres: livresSet, meus: meusSet, rotulos: rotulosMap };
   }, [mapa]);
 
   const selecionados = useMemo(
     () => (mapa ? escolhidos.filter((id) => livres.has(id)) : escolhidos),
     [mapa, escolhidos, livres],
   );
+  // Só conta como "perdido" o assento que OUTRA pessoa pegou: o que a própria pessoa acabou de
+  // reservar também deixa de estar livre, mas não merece o aviso de "reservado por outra pessoa".
   const perdidos = useMemo(
-    () => (mapa ? escolhidos.filter((id) => !livres.has(id)) : []),
-    [mapa, escolhidos, livres],
+    () => (mapa ? escolhidos.filter((id) => !livres.has(id) && !meus.has(id)) : []),
+    [mapa, escolhidos, livres, meus],
   );
 
   // Avisa UMA vez quando um assento escolhido deixa de estar livre (outra pessoa pegou).
