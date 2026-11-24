@@ -48,6 +48,12 @@ O script usa o Chrome ou o Edge em modo headless, sem dependência nova.
 
 As partículas usam [`ExplosaoPipoca.tsx`](src/components/ExplosaoPipoca.tsx) (reanimated + svg), no UI thread, sem setState por quadro. Com **"reduzir movimento"** ligado no sistema, só o texto aparece, com fade.
 
+## Casos de uso
+
+[![Diagrama de casos de uso](docs/diagrama-casos-de-uso.png)](docs/diagrama-casos-de-uso.png)
+
+O diagrama entidade-relacionamento do banco está no backend: [bilheteria_api/docs](https://github.com/Isacosta412/bilheteria_api/blob/main/docs/diagrama-entidade-relacionamento.png).
+
 ## Funcionalidades
 
 **Cliente**
