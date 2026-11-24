@@ -80,11 +80,17 @@ function Formulario({ filme }: { filme?: Filme }) {
   const salvar = useMutation({
     mutationFn: (dados: DadosFilme) => (filme ? atualizarFilme(filme.id, dados) : criarFilme(dados)),
     onSuccess: (salvo) => {
-      toast.mostrar(filme ? 'Filme atualizado.' : `"${salvo.titulo}" cadastrado.`, 'sucesso');
       void queryClient.invalidateQueries({ queryKey: ['filmes'] });
       void queryClient.invalidateQueries({ queryKey: chaves.filme(salvo.id) });
       void queryClient.invalidateQueries({ queryKey: chaves.todasSessoes() });
-      voltarOuIr(router, '/gerencia/filmes' as Href);
+      if (filme) {
+        toast.mostrar('Filme atualizado.', 'sucesso');
+        voltarOuIr(router, '/gerencia/filmes' as Href);
+        return;
+      }
+      // Filme novo só aparece para o cliente quando tiver sessão: já abre a criação da sessão.
+      toast.mostrar(`"${salvo.titulo}" cadastrado. Agora crie uma sessão para ele aparecer em Em cartaz.`, 'sucesso');
+      router.replace({ pathname: '/gerencia/sessoes/nova', params: { filmeId: String(salvo.id) } } as unknown as Href);
     },
     onError: (erro) => {
       const porCampo = errosDeCampo(erro);
@@ -182,7 +188,24 @@ function Formulario({ filme }: { filme?: Filme }) {
           </View>
         </View>
 
+        <View style={estilos.info}>
+          <Text style={estilos.infoTitulo}>2D/3D e dublado/legendado ficam na sessão</Text>
+          <Text style={estilos.infoTexto}>
+            O mesmo filme pode ter sessões em 2D e em 3D, dubladas ou legendadas. O filme só aparece para o cliente em
+            Em cartaz depois de ter pelo menos uma sessão marcada.
+          </Text>
+        </View>
+
         <Botao titulo={filme ? 'Salvar alterações' : 'Cadastrar filme'} onPress={() => void enviar()} carregando={salvar.isPending} />
+        {filme && (
+          <Botao
+            titulo="Criar sessão para este filme"
+            variante="texto"
+            onPress={() =>
+              router.push({ pathname: '/gerencia/sessoes/nova', params: { filmeId: String(filme.id) } } as unknown as Href)
+            }
+          />
+        )}
       </View>
     </Tela>
   );
@@ -200,6 +223,15 @@ const estilos = StyleSheet.create({
     alignSelf: 'center',
   },
   sinopse: { minHeight: 120 },
+  info: {
+    backgroundColor: cores.superficieElevada,
+    borderRadius: raios.md,
+    padding: espacos.md,
+    marginBottom: espacos.lg,
+    gap: espacos.xxs,
+  },
+  infoTitulo: { ...tipografia.corpoForte, color: cores.texto },
+  infoTexto: { ...tipografia.legenda, color: cores.textoSecundario },
   linha: { flexDirection: 'row', flexWrap: 'wrap', columnGap: espacos.lg },
   coluna: { flexGrow: 1, flexBasis: 200 },
   bloco: { marginBottom: espacos.lg },

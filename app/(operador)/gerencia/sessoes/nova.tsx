@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useRouter, type Href } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -59,6 +59,9 @@ export default function NovaSessao() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const [aviso, setAviso] = useState<string | null>(null);
+  // Vindo de "Criar sessão para este filme": o filme já vem escolhido.
+  const params = useLocalSearchParams<{ filmeId?: string }>();
+  const filmeInicial = Number(params.filmeId);
   const [formato, setFormato] = useState<FormatoSessao>('DOIS_D');
   const [idioma, setIdioma] = useState<IdiomaSessao>('DUBLADO');
 
@@ -78,7 +81,12 @@ export default function NovaSessao() {
   const { control, handleSubmit, setError } = useForm<FormSessao>({
     resolver: zodResolver(sessaoSchema),
     mode: 'onTouched',
-    defaultValues: { filmeId: null, salaId: null, dataHora: null, preco: '' },
+    defaultValues: {
+      filmeId: Number.isInteger(filmeInicial) && filmeInicial > 0 ? filmeInicial : null,
+      salaId: null,
+      dataHora: null,
+      preco: '',
+    },
   });
   const [filmeId, dataHora] = useWatch({ control, name: ['filmeId', 'dataHora'] });
   const filme = filmesQuery.data?.find((f) => f.id === filmeId);
@@ -89,7 +97,9 @@ export default function NovaSessao() {
       toast.mostrar(`Sessão criada: ${sessao.filme.titulo}, ${rotuloDia(parseISO(sessao.dataHora)).toLowerCase()} às ${formatarHora(sessao.dataHora)}.`, 'sucesso');
       void invalidarAposCompra(queryClient);
       void queryClient.invalidateQueries({ queryKey: ['relatorios'] });
-      voltarOuIr(router, '/gerencia/sessoes' as Href);
+      // Vindo do cadastro do filme, "voltar" levaria a uma tela que não existe mais: vai direto para a lista.
+      if (params.filmeId) router.replace('/gerencia/sessoes' as Href);
+      else voltarOuIr(router, '/gerencia/sessoes' as Href);
     },
     onError: (erro, dados) => {
       const codigo = codigoDoErro(erro);
