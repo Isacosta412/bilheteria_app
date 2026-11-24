@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
-import { format, parseISO, subDays } from 'date-fns';
+import { addDays, format, parseISO, subDays } from 'date-fns';
 import { chaves } from '@/api/chaves';
 import { traduzirErro } from '@/api/client';
 import { listarFilmes } from '@/api/filmes';
@@ -23,11 +23,13 @@ import { diaIso } from '@/lib/formatacao';
 import { cores, espacos, raios, tipografia } from '@/theme';
 import type { AgrupamentoVendas } from '@/types';
 
-type Atalho = 'hoje' | '7' | '30';
-const DIAS: Record<Atalho, number> = { hoje: 1, '7': 7, '30': 30 };
+/** "proximos" = hoje + 6 dias à frente (sessões programadas, com as vendas antecipadas); os outros olham para trás. */
+type Atalho = 'proximos' | 'hoje' | '7' | '30';
+const DIAS: Record<Exclude<Atalho, 'proximos'>, number> = { hoje: 1, '7': 7, '30': 30 };
 
 function periodoDo(atalho: Atalho): { inicio: string; fim: string } {
   const hoje = new Date();
+  if (atalho === 'proximos') return { inicio: diaIso(hoje), fim: diaIso(addDays(hoje, 6)) };
   return { inicio: diaIso(subDays(hoje, DIAS[atalho] - 1)), fim: diaIso(hoje) };
 }
 
@@ -51,13 +53,15 @@ function Bloco({ titulo, children, acao }: { titulo: string; children: ReactNode
 
 export default function Relatorios() {
   const toast = useToast();
-  const [atalho, setAtalho] = useState<Atalho>('7');
+  const [atalho, setAtalho] = useState<Atalho>('proximos');
   const [filmeId, setFilmeId] = useState<number | null>(null);
   const [salaId, setSalaId] = useState<number | null>(null);
   const [agrupar, setAgrupar] = useState<AgrupamentoVendas>('dia');
 
   const periodo = useMemo(() => periodoDo(atalho), [atalho]);
   const filtro: FiltroRelatorio = { ...periodo, filmeId: filmeId ?? undefined, salaId: salaId ?? undefined };
+  // Vendas olham para trás: em "Próximos 7 dias", mostram as dos últimos 7 dias.
+  const periodoVendas = useMemo(() => (atalho === 'proximos' ? periodoDo('7') : periodo), [atalho, periodo]);
 
   const filmes = useQuery({ queryKey: chaves.filmes({}), queryFn: () => listarFilmes() });
   const salas = useQuery({ queryKey: chaves.salas(), queryFn: listarSalas });
@@ -67,8 +71,8 @@ export default function Relatorios() {
     placeholderData: keepPreviousData,
   });
   const vendas = useQuery({
-    queryKey: chaves.relatorioVendas(periodo, agrupar),
-    queryFn: () => relatorioVendas(periodo, agrupar),
+    queryKey: chaves.relatorioVendas(periodoVendas, agrupar),
+    queryFn: () => relatorioVendas(periodoVendas, agrupar),
     placeholderData: keepPreviousData,
   });
 
@@ -154,6 +158,7 @@ export default function Relatorios() {
           <OpcoesChips<Atalho>
             rotulo={`Período: ${textoPeriodo}`}
             opcoes={[
+              { valor: 'proximos', rotulo: 'Próximos 7 dias' },
               { valor: 'hoje', rotulo: 'Hoje' },
               { valor: '7', rotulo: '7 dias' },
               { valor: '30', rotulo: '30 dias' },
@@ -188,7 +193,11 @@ export default function Relatorios() {
         {corpoSessoes}
 
         <Bloco titulo="Vendas">
-          <Text style={estilos.nota}>Todas as vendas do período (os filtros de filme e sala valem só para as sessões).</Text>
+          <Text style={estilos.nota}>
+            {atalho === 'proximos'
+              ? `Vendas feitas de ${diaCurto(periodoVendas.inicio)} a ${diaCurto(periodoVendas.fim)} (os filtros de filme e sala valem só para as sessões).`
+              : 'Todas as vendas do período (os filtros de filme e sala valem só para as sessões).'}
+          </Text>
           <OpcoesChips<AgrupamentoVendas>
             rotulo="Agrupar por"
             opcoes={[

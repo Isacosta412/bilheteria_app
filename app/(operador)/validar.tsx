@@ -24,7 +24,11 @@ function resultadoLiberado(ingresso: Ingresso): Resultado {
   return {
     tipo: 'liberado',
     titulo: 'Entrada liberada',
-    linhas: [ingresso.filme.titulo, `${ingresso.sala.nome} · Fila ${ingresso.fila} · Assento ${ingresso.numero}`],
+    linhas: [
+      ingresso.filme.titulo,
+      `${ingresso.sala.nome} · Fila ${ingresso.fila} · Assento ${ingresso.numero}`,
+      ingresso.tipoIngresso === 'MEIA' ? 'Meia-entrada: confira o documento' : 'Inteira',
+    ],
   };
 }
 

@@ -1,14 +1,14 @@
 ﻿# Publica o app web do Pipocou na VM (Nginx entrega /srv/app na raiz do subdomínio; /api vai para a API).
-# Uso (PowerShell, na pasta frontend):  .\deploy-web.ps1
+# Uso (PowerShell, na pasta do app):  .\deploy-web.ps1
 # Para apagar os arquivos antigos do servidor antes de enviar:  .\deploy-web.ps1 -Limpar
 param(
   [switch]$Limpar
 )
 
 # ─── Ajuste aqui ─────────────────────────────────────────────────────────────
-$Ip      = 'IP-DA-VM'                      # ex.: 54.123.45.67
-$Dominio = 'pipocou.SEU-DOMINIO.com.br'    # subdomínio do app (sem https://)
-$Chave   = 'C:\Users\isado\.ssh\bilheteria.pem'
+$Ip      = '163.176.53.31'                   # VM Oracle Cloud (São Paulo)
+$Dominio = 'pipocou.163.176.53.31.sslip.io'  # subdomínio do app (sem https://)
+$Chave   = "$HOME\.ssh\bilheteria.pem"       # cópia da chave da equipe (acesso_servidor_oracle)
 $Usuario = 'ubuntu'
 $Destino = '/srv/app'
 # ─────────────────────────────────────────────────────────────────────────────

@@ -5,8 +5,9 @@
 App de cinema com **marcação de assentos**: Trabalho Final de Programação II + Banco de Dados II (Unoesc).
 O cliente escolhe o lugar no mapa, reserva, paga (pagamento simulado) e recebe o ingresso com QR code. O operador vende no balcão, valida a entrada, cadastra filmes, salas e sessões e acompanha os relatórios.
 
-- **App em produção:** `https://pipocou.<seu-dominio>` *(preencher após o primeiro deploy)*
-- **API (backend):** [bilheteria-api](https://github.com/Isacosta412/bilheteria_api), no mesmo endereço, em `https://pipocou.<seu-dominio>/api`
+- **App em produção:** [pipocou.163.176.53.31.sslip.io](https://pipocou.163.176.53.31.sslip.io) (HTTPS, VM Oracle Cloud em São Paulo)
+- **API (backend):** [bilheteria-api](https://github.com/Isacosta412/bilheteria_api), no mesmo endereço, em `https://pipocou.163.176.53.31.sslip.io/api` ([healthcheck](https://pipocou.163.176.53.31.sslip.io/api/health))
+- **Cinema:** Pipocou Chapecó, no Pátio Chapecó (Av. Fernando Machado, 4000-D, Líder, Chapecó - SC). O endereço aparece em Em cartaz, na página do filme e no ingresso ([`src/lib/cinema.ts`](src/lib/cinema.ts)).
 
 **Stack:** Expo (SDK 58) + React Native + TypeScript strict, Expo Router, React Query, react-hook-form + zod, axios, react-native-svg / react-native-qrcode-svg, react-native-reanimated, expo-camera.
 Alvos: **Web** (usado na apresentação) e Android/iOS pelo Expo Go.
@@ -20,17 +21,18 @@ Alvos: **Web** (usado na apresentação) e Android/iOS pelo Expo Go.
 | Bordão da compra | "Escolheu, pipocou, sentou." (pagamento aprovado e "Meus ingressos" vazio) |
 | Logo | balde de pipoca em SVG: [`src/components/LogoPipocou.tsx`](src/components/LogoPipocou.tsx) e [`assets/icon-pipocou.svg`](assets/icon-pipocou.svg) |
 
-**Paleta** ([`src/theme/cores.ts`](src/theme/cores.ts), contraste WCAG AA medido em cada par):
+**Paleta** ([`src/theme/cores.ts`](src/theme/cores.ts), contraste WCAG AA medido em cada par): sala de cinema, com fundo vinho/terracota, cartões em vinho escuro, pipoca amarela e o vermelho e branco do balde.
 
 | Papel | Cor | Uso |
 |---|---|---|
-| Fundo | `#14110F` | fundo das telas |
-| Superfície | `#221C18` | cartões, abas, cabeçalhos |
-| Primária | `#FFC93C` | botões, seleção, destaques (texto sobre ela: `#14110F`, 12,2:1) |
-| Destaque | `#E63946` | "TELA" do mapa, logo, detalhes gráficos (4,5:1 no fundo) |
-| Texto | `#FFF8E7` | texto principal (17,8:1 no fundo) |
+| Fundo | `#8A3F37` | fundo das telas, com a estampa de baldes, rolos de filme, claquetes e ingressos ([`FundoCinema.tsx`](src/components/FundoCinema.tsx)) |
+| Superfície | `#4F1D1A` | cartões e painéis |
+| Barra | `#3A1512` | cabeçalho e abas, com a faixa listrada vermelho/branco |
+| Primária | `#FFC93C` | botões, seleção, destaques (texto sobre ela: `#3A1512`, 9,0:1) |
+| Vermelho do balde | `#E63946` | faixa listrada, logo, "TELA" do mapa |
+| Texto | `#FFF8E7` | texto principal (7,0:1 no fundo; 13,0:1 nos cartões) |
 
-Mapa de assentos (cor **e** ícone, nunca só cor): livre = contorno creme · selecionado = amarelo com ✓ · reservado = `#F4A261` com relógio · vendido = `#5C534D` com ✕ (contorno `#8A7B6E` para passar de 3:1) · "TELA" em vermelho.
+Mapa de assentos (cor **e** ícone, nunca só cor): livre = contorno creme · selecionado = amarelo com ✓ · reservado = laranja `#F4A261` com relógio · vendido = `#6B5550` com ✕ · PCD com ♿ · "TELA" no topo.
 
 Os ícones do app (`assets/images/*.png`) saem do mesmo desenho do logo:
 
@@ -41,38 +43,56 @@ node scripts/gerar-icones.mjs
 O script usa o Chrome ou o Edge em modo headless, sem dependência nova.
 
 ### Animações
-- **Login:** quando dá certo, o logo balança, as pipocas saem dele e aparece "Pipocou! 🍿". Depois de 1,5 s (ou com um toque na tela), o app abre a área do papel. Senha errada não anima.
-- **Pagamento aprovado:** 40 pipocas sobem do pé da tela junto com o título "Escolheu, pipocou, sentou.".
+- **Cortina de comemoração** ([`CortinaPipoca.tsx`](src/components/CortinaPipoca.tsx)), no login e no pagamento aprovado: a tela escurece em vinho, o balde aparece, treme e estoura em pipocas com o texto ("Pipocou! 🍿" ou "Pagamento aprovado! 🍿"). Com tudo coberto, a próxima tela entra por baixo e a cortina se abre.
 - **Balcão:** sem animação, para não atrasar a fila.
 
-As duas usam [`src/components/ExplosaoPipoca.tsx`](src/components/ExplosaoPipoca.tsx) (reanimated + svg). O movimento roda no UI thread, sem setState por quadro. Com **"reduzir movimento"** ligado no sistema, só o texto aparece, com fade.
+As partículas usam [`ExplosaoPipoca.tsx`](src/components/ExplosaoPipoca.tsx) (reanimated + svg), no UI thread, sem setState por quadro. Com **"reduzir movimento"** ligado no sistema, só o texto aparece, com fade.
+
+## Funcionalidades
+
+**Cliente**
+- **Em cartaz:** busca por título e filtro por dia; só aparecem filmes com sessão.
+- **Página do filme:** em tela larga, filme à esquerda e sessões à direita, numa tela só. Filtros de **formato (2D/3D)**, **áudio (dublado/legendado)** e **dia**; cada sessão mostra os selos `3D`/`2D` e `DUB`/`LEG`.
+- **Mapa de assentos:** atualiza a cada 5 s; se outra pessoa pegar o assento, aparece "Ops! Alguém acabou de escolher um desses assentos". A quantidade de ingressos é a quantidade de assentos marcados.
+- **Pagamento:** contagem regressiva da reserva, escolha de **inteira e meia-entrada** (botões − e +; meia = metade do preço) e total calculado pela API. PIX ou cartão (simulados).
+- **Ingresso:** QR code, código de 10 caracteres, versão (ex.: "3D · Legendado") e se é inteira ou meia.
+
+**Operador**
+- **Bilheteria:** venda no balcão (sessão → assentos → pagamento em dinheiro, cartão ou PIX), com troco e impressão.
+- **Validar:** código digitado ou QR lido pela câmera. Verde = entrada liberada (com aviso "Meia-entrada: confira o documento"); laranja = já utilizado.
+- **Gerência:** filmes, salas (com prévia e marcação de PCD) e sessões (filme e sala escolhidos pelo nome, formato e áudio).
+- **Relatórios:** "Próximos 7 dias" (padrão), hoje, 7 ou 30 dias; ingressos, receita, ocupação, gráfico por sessão, tabela ordenável com CSV e vendas App × Balcão. A receita soma o valor pago em cada ingresso.
 
 ## Telas
 
-> Coloque as imagens em `docs/prints/` com os nomes abaixo.
+Prints tirados com dados de teste, em `docs/prints/`.
 
 | Cliente | |
 |---|---|
-| ![Catálogo (Em cartaz)](docs/prints/01-catalogo.png) | ![Mapa de assentos](docs/prints/02-mapa-assentos.png) |
-| Catálogo com filtro por dia | Mapa de assentos (atualiza a cada 5 s) |
-| ![Pagamento](docs/prints/03-checkout.png) | ![Ingresso com QR code](docs/prints/04-ingresso.png) |
-| Pagamento com contagem regressiva | Ingresso com QR code |
+| ![Em cartaz](docs/prints/01-catalogo.jpg) | ![Página do filme](docs/prints/02-filme.jpg) |
+| Em cartaz, com o endereço do cinema e o filtro por dia | Página do filme numa tela só, com 2D/3D, áudio e dia |
+| ![Mapa de assentos](docs/prints/03-mapa-assentos.jpg) | ![Pagamento](docs/prints/04-checkout.jpg) |
+| Mapa de assentos (atualiza a cada 5 s) | Pagamento com contagem regressiva e inteira/meia |
+| ![Ingresso](docs/prints/05-ingresso.jpg) | |
+| Ingresso com QR code, versão e meia-entrada | |
 
 | Operador | |
 |---|---|
-| ![Venda no balcão](docs/prints/05-balcao.png) | ![Validar entrada](docs/prints/06-validar.png) |
-| Venda no balcão com troco | Validação na entrada (código ou QR) |
-| ![Gerência](docs/prints/07-gerencia.png) | ![Relatórios](docs/prints/08-relatorios.png) |
-| Cadastro de salas com marcação de PCD | Relatórios: ocupação, receita, App × Balcão |
+| ![Venda no balcão](docs/prints/06-balcao.jpg) | ![Validar entrada](docs/prints/07-validar.jpg) |
+| Venda no balcão com troco | Entrada liberada (meia: confira o documento) |
+| ![Ingresso já utilizado](docs/prints/08-validar-ja-utilizado.jpg) | ![Nova sessão](docs/prints/09-gerencia-nova-sessao.jpg) |
+| O mesmo código de novo: já utilizado | Nova sessão com formato e áudio |
+| ![Nova sala](docs/prints/10-gerencia-sala.jpg) | ![Relatórios](docs/prints/11-relatorios.jpg) |
+| Nova sala com prévia e lugares PCD | Relatórios: ocupação, receita, App × Balcão |
 
 ## Contas de demonstração
 
 | Perfil | E-mail | Senha |
 |---|---|---|
-| Operador | `<preencher>` | `<preencher>` |
-| Cliente | `<preencher>` | `<preencher>` |
+| Operador | `operador@pipocou.com` | `operador123` |
+| Cliente | `cliente@pipocou.com` | `cliente123` |
 
-O operador é criado pelo `npm run seed` do backend (e-mail e senha vêm do `.env` dele: `SEED_OPERADOR_*`). Clientes podem se cadastrar pela tela "Cadastre-se".
+Em desenvolvimento, o operador é criado pelo `npm run seed` do backend (e-mail e senha vêm do `.env` dele: `SEED_OPERADOR_*`). Clientes podem se cadastrar pela tela "Cadastre-se".
 
 ## Como rodar (desenvolvimento)
 
@@ -92,7 +112,7 @@ npm run web
 
 O app abre em http://localhost:8081. No PowerShell, troque o `cp` por `Copy-Item .env.example .env`.
 
-**Para ver as animações:** entre com uma conta de cliente (a explosão do login aparece antes do catálogo). Depois escolha uma sessão, reserve assentos e toque em "Já paguei" (as 40 pipocas do pagamento aprovado). Uma conta nova mostra o "Meus ingressos" vazio com o bordão.
+**Para ver as animações:** entre com uma conta de cliente (a cortina do login aparece antes do catálogo). Depois escolha uma sessão, reserve assentos e toque em "Já paguei" (a cortina do pagamento aprovado). Uma conta nova mostra o "Meus ingressos" vazio com o bordão.
 
 ### Variáveis de ambiente
 
@@ -128,7 +148,7 @@ O `--tunnel` funciona mesmo quando o celular e o computador estão em redes dife
 
 ### APK com EAS Build (opcional)
 O perfil `preview` do [`eas.json`](eas.json) gera um APK para instalar direto no Android.
-1. Troque `EXPO_PUBLIC_API_URL` no `eas.json` pela URL da API de produção (`https://pipocou.<seu-dominio>/api`).
+1. Troque `EXPO_PUBLIC_API_URL` no `eas.json` pela URL da API de produção (`https://pipocou.163.176.53.31.sslip.io/api`).
 2. Rode os comandos abaixo (precisa de uma conta Expo gratuita; o build roda na nuvem da Expo):
 
 ```bash
@@ -147,20 +167,20 @@ O app e a API ficam no mesmo endereço, numa VM com Nginx:
 
 | Caminho | O que é |
 |---|---|
-| `https://pipocou.<seu-dominio>/` | o app web (arquivos estáticos em `/srv/app`) |
-| `https://pipocou.<seu-dominio>/api/...` | a API (o Nginx repassa para `127.0.0.1:3333`) |
+| `https://pipocou.163.176.53.31.sslip.io/` | o app web (arquivos estáticos em `/srv/app`) |
+| `https://pipocou.163.176.53.31.sslip.io/api/...` | a API (o Nginx repassa para `127.0.0.1:3333`) |
 
 Como os dois estão na mesma origem, o navegador não faz chamadas entre origens e o CORS não atrapalha. Nenhuma rota do app pode se chamar `api` (não há `app/api*`).
 
-**`.env.production`** (não versionado; o `npx expo export` lê ele sozinho):
+**`.env.production`** (não versionado; o `npx expo export` lê ele sozinho). Como app e API estão no mesmo endereço, o caminho relativo basta:
 
 ```
-EXPO_PUBLIC_API_URL=https://pipocou.<seu-dominio>/api
+EXPO_PUBLIC_API_URL=/api
 ```
 
 **Publicar** com o [`deploy-web.ps1`](deploy-web.ps1):
-1. Preencha `$Ip` e `$Dominio` no topo do script. A chave SSH padrão é `C:\Users\isado\.ssh\bilheteria.pem`.
-2. Na pasta `frontend`, rode o script. Ele gera o `dist/` com `npx expo export --platform web`, usando `https://$Dominio/api`, e envia tudo por `scp` para `ubuntu@IP:/srv/app`.
+1. O topo do script já vem com o servidor do projeto (`163.176.53.31`, `pipocou.163.176.53.31.sslip.io`) e procura a chave em `$HOME\.ssh\bilheteria.pem`: copie para lá a `bilheteria.pem` de `acesso_servidor_oracle`.
+2. Na pasta do app, rode o script. Ele gera o `dist/` com `npx expo export --platform web`, usando `https://$Dominio/api`, e envia tudo por `scp` para `ubuntu@IP:/srv/app`.
 
 ```powershell
 .\deploy-web.ps1
