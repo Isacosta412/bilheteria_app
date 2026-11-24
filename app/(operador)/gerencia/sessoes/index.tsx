@@ -17,6 +17,7 @@ import { Tela } from '@/components/Tela';
 import { useToast } from '@/components/Toast';
 import { invalidarAposCompra } from '@/lib/invalidacoes';
 import { diaIso, formatarHora, formatarPreco, lugaresLivres, plural, primeiroNumero, rotuloDia } from '@/lib/formatacao';
+import { descreverVersao } from '@/lib/sessao';
 import { cores, espacos, tipografia } from '@/theme';
 import type { Sessao } from '@/types';
 
@@ -109,7 +110,7 @@ export default function ListaSessoes() {
             titulo={`${formatarHora(s.dataHora)}–${formatarHora(s.terminoPrevisto)} · ${s.filme.titulo}`}
             apagado={s.cancelada}
             selos={s.cancelada ? <Selo texto="Cancelada" tom="erro" /> : undefined}
-            linhas={[`${s.sala.nome} · ${formatarPreco(s.preco)}${s.cancelada ? '' : ` · ${lugaresLivres(s.assentosLivres)}`}`]}
+            linhas={[`${s.sala.nome} · ${descreverVersao(s)} · ${formatarPreco(s.preco)}${s.cancelada ? '' : ` · ${lugaresLivres(s.assentosLivres)}`}`]}
             acoes={
               s.cancelada ? undefined : (
                 <Botao

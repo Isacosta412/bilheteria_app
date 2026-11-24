@@ -6,7 +6,7 @@ import { isAxiosError } from 'axios';
 import QRCode from 'react-native-qrcode-svg';
 import { chaves } from '@/api/chaves';
 import { codigoDoErro, traduzirErro } from '@/api/client';
-import { buscarReserva, cancelarReserva, pagarReserva } from '@/api/reservas';
+import { alterarMeias, buscarReserva, cancelarReserva, pagarReserva } from '@/api/reservas';
 import { Botao } from '@/components/Botao';
 import { FaixaListrada } from '@/components/Cabecalho';
 import { Carregando } from '@/components/Carregando';
@@ -15,12 +15,14 @@ import { Dialogo } from '@/components/Dialogo';
 import { EstadoVazio } from '@/components/EstadoVazio';
 import { FundoCinema } from '@/components/FundoCinema';
 import { MensagemErro } from '@/components/MensagemErro';
+import { SeletorTipoIngresso } from '@/components/SeletorTipoIngresso';
 import { Tela } from '@/components/Tela';
 import { useToast } from '@/components/Toast';
 import { useContagemRegressiva } from '@/hooks/useContagemRegressiva';
 import { invalidarAposCompra } from '@/lib/invalidacoes';
 import { formatarDiaHora, formatarPreco } from '@/lib/formatacao';
 import { explicacaoReserva } from '@/lib/reserva';
+import { descreverVersao } from '@/lib/sessao';
 import { AREA_TOQUE_MINIMA, LARGURA_MAXIMA, cores, espacos, raios, tipografia } from '@/theme';
 import type { Compra } from '@/types';
 
@@ -74,6 +76,20 @@ export default function Checkout() {
         return;
       }
       toast.mostrar(traduzirErro(erro), 'erro');
+    },
+  });
+
+  // Inteira/meia: a API recalcula o total; a tela mostra o que voltar.
+  const tiposIngresso = useMutation({
+    mutationFn: (meias: number) => alterarMeias(reservaId, meias),
+    onSuccess: (atualizada) => queryClient.setQueryData(chaves.reserva(reservaId), atualizada),
+    onError: (erro) => {
+      if (codigoDoErro(erro) === 'RESERVA_EXPIRADA') {
+        setExpiradaPelaApi(true);
+        return;
+      }
+      toast.mostrar(traduzirErro(erro), 'erro');
+      void consulta.refetch();
     },
   });
 
@@ -202,9 +218,27 @@ export default function Checkout() {
             <Text style={estilos.detalhe}>
               {formatarDiaHora(reserva.sessao.dataHora)} · {reserva.sessao.salaNome}
             </Text>
+            <Text style={estilos.detalhe}>{descreverVersao(reserva.sessao)}</Text>
             <Text style={estilos.detalhe}>
               {reserva.assentos.length === 1 ? 'Assento' : 'Assentos'}: <Text style={estilos.destaque}>{assentos}</Text>
+              {' · '}
+              {reserva.assentos.length} {reserva.assentos.length === 1 ? 'ingresso' : 'ingressos'}
             </Text>
+          </View>
+
+          {/* Tipo de ingresso */}
+          <Text style={estilos.secao} accessibilityRole="header">
+            Tipo de ingresso
+          </Text>
+          <View style={estilos.cartao}>
+            <SeletorTipoIngresso
+              quantidade={reserva.assentos.length}
+              meias={tiposIngresso.isPending ? (tiposIngresso.variables ?? reserva.meias) : reserva.meias}
+              precoInteira={reserva.precoInteira}
+              precoMeia={reserva.precoMeia}
+              aoMudarMeias={(meias) => tiposIngresso.mutate(meias)}
+              desabilitado={expirou || tiposIngresso.isPending || pagamento.isPending}
+            />
             <View style={estilos.totalLinha}>
               <Text style={estilos.totalRotulo}>Total</Text>
               <Text style={estilos.totalValor}>{formatarPreco(reserva.total)}</Text>
@@ -255,7 +289,7 @@ export default function Checkout() {
             titulo={metodo === 'PIX' ? 'Já paguei' : 'Pagar'}
             onPress={() => pagamento.mutate()}
             carregando={pagamento.isPending}
-            desabilitado={expirou || cancelamento.isPending}
+            desabilitado={expirou || cancelamento.isPending || tiposIngresso.isPending}
             accessibilityLabel={`${metodo === 'PIX' ? 'Já paguei' : 'Pagar'} ${formatarPreco(reserva.total)}`}
           />
           <Botao

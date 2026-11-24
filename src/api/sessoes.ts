@@ -1,4 +1,4 @@
-import type { Sessao } from '@/types';
+import type { FormatoSessao, IdiomaSessao, Sessao } from '@/types';
 import { api } from './client';
 
 export interface FiltroSessoes {
@@ -34,10 +34,18 @@ export interface DadosSessao {
   /** ISO 8601 com fuso. */
   dataHora: string;
   preco: number;
+  formato: FormatoSessao;
+  idioma: IdiomaSessao;
 }
 
 export async function criarSessao(dados: DadosSessao): Promise<Sessao> {
   const { data } = await api.post<Sessao>('/sessoes', dados);
+  return data;
+}
+
+/** Troca o formato e/ou o idioma de uma sessão já criada. */
+export async function atualizarSessao(id: number, dados: { formato?: FormatoSessao; idioma?: IdiomaSessao }): Promise<Sessao> {
+  const { data } = await api.patch<Sessao>(`/sessoes/${id}`, dados);
   return data;
 }
 

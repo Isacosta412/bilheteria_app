@@ -17,6 +17,7 @@ import { SeloClassificacao } from '@/components/SeloClassificacao';
 import { SeloStatusIngresso } from '@/components/SeloStatusIngresso';
 import { Tela } from '@/components/Tela';
 import { formatarCodigo, formatarDataHoraCurta, formatarDiaHora, soletrarCodigo } from '@/lib/formatacao';
+import { descreverVersao } from '@/lib/sessao';
 import { cores, espacos, raios, tipografia } from '@/theme';
 
 /** Cores do "papel" do ingresso: claro para o QR ter contraste máximo. Texto escuro: 15,9:1 e 8,2:1. */
@@ -108,6 +109,9 @@ export default function DetalheIngresso() {
               </Text>
             </View>
             <Text style={estilos.quando}>{formatarDiaHora(ingresso.dataHora)}</Text>
+            <Text style={estilos.versao}>
+              {descreverVersao(ingresso.sessao)} · {ingresso.tipoIngresso === 'MEIA' ? 'Meia-entrada' : 'Inteira'}
+            </Text>
             <EnderecoCinema cor={TINTA_SECUNDARIA} />
             <View style={estilos.campos}>
               <View style={estilos.campo}>
@@ -176,6 +180,7 @@ const estilos = StyleSheet.create({
   linha: { flexDirection: 'row', alignItems: 'center', gap: espacos.sm },
   filme: { ...tipografia.subtitulo, color: TINTA, flexShrink: 1 },
   quando: { ...tipografia.corpoForte, color: TINTA, textTransform: 'capitalize' },
+  versao: { ...tipografia.corpoForte, color: TINTA_SECUNDARIA },
   campos: { flexDirection: 'row', gap: espacos.xl, marginTop: espacos.sm },
   campo: { gap: 2 },
   rotulo: { ...tipografia.legenda, color: TINTA_SECUNDARIA, textTransform: 'uppercase', letterSpacing: 0.5 },

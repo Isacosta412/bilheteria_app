@@ -11,6 +11,7 @@ import { listarFilmes } from '@/api/filmes';
 import { listarSalas } from '@/api/salas';
 import { criarSessao } from '@/api/sessoes';
 import { Botao } from '@/components/Botao';
+import { ChipsDatas } from '@/components/ChipsDatas';
 import { voltarOuIr } from '@/lib/rotas';
 import { Campo } from '@/components/Campo';
 import { CampoDataHora } from '@/components/form/CampoDataHora';
@@ -21,7 +22,9 @@ import { useToast } from '@/components/Toast';
 import { mascararReais, reaisDaMascara } from '@/lib/dinheiro';
 import { formatarDuracao, formatarHora, rotuloDia } from '@/lib/formatacao';
 import { invalidarAposCompra } from '@/lib/invalidacoes';
+import { ROTULO_FORMATO, ROTULO_IDIOMA } from '@/lib/sessao';
 import { sessaoSchema, type FormSessao } from '@/schemas/sessao';
+import type { FormatoSessao, IdiomaSessao } from '@/types';
 import { cores, espacos, raios, tipografia } from '@/theme';
 
 /** Mesmo intervalo de limpeza da API (LIMPEZA_MINUTOS). */
@@ -56,6 +59,8 @@ export default function NovaSessao() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const [aviso, setAviso] = useState<string | null>(null);
+  const [formato, setFormato] = useState<FormatoSessao>('DOIS_D');
+  const [idioma, setIdioma] = useState<IdiomaSessao>('DUBLADO');
 
   const filmesQuery = useQuery({ queryKey: chaves.filmes({ ativo: true }), queryFn: () => listarFilmes({ ativo: true }) });
   const salasQuery = useQuery({ queryKey: chaves.salas(), queryFn: listarSalas });
@@ -111,6 +116,8 @@ export default function NovaSessao() {
       salaId: dados.salaId,
       dataHora: dados.dataHora.toISOString(),
       preco: reaisDaMascara(dados.preco) ?? 0,
+      formato,
+      idioma,
     });
   });
 
@@ -189,6 +196,27 @@ export default function NovaSessao() {
           placeholder="R$ 0,00"
         />
 
+        <View style={estilos.versao}>
+          <View>
+            <Text style={estilos.versaoRotulo}>Formato</Text>
+            <ChipsDatas
+              rotulo="Formato da sessão"
+              opcoes={(['DOIS_D', 'TRES_D'] as const).map((v) => ({ valor: v, rotulo: ROTULO_FORMATO[v] }))}
+              selecionada={formato}
+              aoSelecionar={(v) => v && setFormato(v as FormatoSessao)}
+            />
+          </View>
+          <View>
+            <Text style={estilos.versaoRotulo}>Áudio</Text>
+            <ChipsDatas
+              rotulo="Áudio da sessão"
+              opcoes={(['DUBLADO', 'LEGENDADO'] as const).map((v) => ({ valor: v, rotulo: ROTULO_IDIOMA[v] }))}
+              selecionada={idioma}
+              aoSelecionar={(v) => v && setIdioma(v as IdiomaSessao)}
+            />
+          </View>
+        </View>
+
         <View style={estilos.info} accessibilityLiveRegion="polite" aria-live="polite">
           <Text style={estilos.infoRotulo}>Término previsto</Text>
           <Text style={estilos.infoValor}>
@@ -223,6 +251,8 @@ const estilos = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
+  versao: { flexDirection: 'row', flexWrap: 'wrap', columnGap: espacos.xl, marginBottom: espacos.md },
+  versaoRotulo: { ...tipografia.legenda, color: cores.textoSecundario },
   info: {
     backgroundColor: cores.superficieElevada,
     borderRadius: raios.md,

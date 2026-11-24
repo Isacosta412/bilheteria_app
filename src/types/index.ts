@@ -54,12 +54,19 @@ export interface SalaDetalhe extends Sala {
 }
 
 // ─── Sessão ──────────────────────────────────────────────────────────────────
+export type FormatoSessao = 'DOIS_D' | 'TRES_D';
+export type IdiomaSessao = 'DUBLADO' | 'LEGENDADO';
+
 export interface Sessao {
   id: number;
   dataHora: string;
   /** Fim do filme (sem o intervalo de limpeza). */
   terminoPrevisto: string;
   preco: string;
+  /** Meia-entrada (metade do preço). */
+  precoMeia: string;
+  formato: FormatoSessao;
+  idioma: IdiomaSessao;
   cancelada: boolean;
   /** Livres agora (LIVRE + reservados com prazo vencido). */
   assentosLivres: number;
@@ -97,9 +104,20 @@ export interface Reserva {
   /** Só nas vendas de balcão, quando o operador informa. */
   nomeComprador: string | null;
   total: string;
+  /** Quantos ingressos são meia-entrada. */
+  meias: number;
+  precoInteira: string;
+  precoMeia: string;
   expiraEm: string;
   criadoEm: string;
-  sessao: { id: number; dataHora: string; filmeTitulo: string; salaNome: string };
+  sessao: {
+    id: number;
+    dataHora: string;
+    filmeTitulo: string;
+    salaNome: string;
+    formato: FormatoSessao;
+    idioma: IdiomaSessao;
+  };
   /** Vazio quando a reserva expirou ou foi cancelada (os assentos foram liberados). */
   assentos: { assentoId: number; fila: string; numero: number; tipo: TipoAssento }[];
 }
@@ -108,6 +126,7 @@ export interface Reserva {
 export type MetodoPagamento = 'PIX' | 'CARTAO' | 'DINHEIRO';
 
 export type StatusIngresso = 'VALIDO' | 'UTILIZADO' | 'SESSAO_ENCERRADA';
+export type TipoIngresso = 'INTEIRA' | 'MEIA';
 
 export interface Ingresso {
   codigo: string;
@@ -115,9 +134,12 @@ export interface Ingresso {
   fila: string;
   numero: number;
   tipo: TipoAssento;
+  tipoIngresso: TipoIngresso;
+  /** Valor pago por este ingresso ("12.50"). */
+  valor: string;
   /** Início da sessão. */
   dataHora: string;
-  sessao: { id: number; dataHora: string; terminoPrevisto: string };
+  sessao: { id: number; dataHora: string; terminoPrevisto: string; formato: FormatoSessao; idioma: IdiomaSessao };
   filme: { id: number; titulo: string; classificacao: Classificacao };
   sala: { id: number; nome: string };
   emitidoEm: string;

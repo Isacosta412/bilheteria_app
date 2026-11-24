@@ -18,6 +18,7 @@ import { useToast } from '@/components/Toast';
 import { useMapaAssentos } from '@/hooks/useMapaAssentos';
 import { useSelecaoAssentos } from '@/hooks/useSelecaoAssentos';
 import { invalidarAposCompra } from '@/lib/invalidacoes';
+import { descreverVersao } from '@/lib/sessao';
 import { formatarDiaHora, formatarPreco } from '@/lib/formatacao';
 import { mensagemReservaFeita } from '@/lib/reserva';
 import { LARGURA_MAXIMA, cores, espacos, raios, tipografia } from '@/theme';
@@ -119,7 +120,10 @@ export default function TelaSessao() {
               </Text>
             </View>
             <Text style={estilos.detalhe}>
-              {formatarDiaHora(sessao.dataHora)} · {sessao.sala.nome} · {formatarPreco(sessao.preco)}
+              {formatarDiaHora(sessao.dataHora)} · {sessao.sala.nome} · {descreverVersao(sessao)}
+            </Text>
+            <Text style={estilos.detalhe}>
+              Inteira {formatarPreco(sessao.preco)} · Meia {formatarPreco(sessao.precoMeia)}
             </Text>
           </View>
 
@@ -158,7 +162,7 @@ export default function TelaSessao() {
                   {quantidade} {quantidade === 1 ? 'assento' : 'assentos'} · {nomesSelecionados}
                 </Text>
                 <Text style={estilos.resumoPreco}>
-                  {previa} <Text style={estilos.previa}>(prévia; o total oficial vem na próxima tela)</Text>
+                  {previa} <Text style={estilos.previa}>(prévia em inteira; a meia-entrada você escolhe na próxima tela)</Text>
                 </Text>
               </>
             )}

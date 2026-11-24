@@ -11,17 +11,19 @@ interface ChipsDatasProps {
   opcoes: OpcaoData[];
   selecionada: string | null;
   aoSelecionar: (valor: string | null) => void;
+  /** Nome do grupo para leitores de tela (padrão: "Filtrar por dia"). */
+  rotulo?: string;
 }
 
 /** Filtro de dias em chips com rolagem horizontal ("Todos", "Hoje", "Amanhã", ...). */
-export function ChipsDatas({ opcoes, selecionada, aoSelecionar }: ChipsDatasProps) {
+export function ChipsDatas({ opcoes, selecionada, aoSelecionar, rotulo = 'Filtrar por dia' }: ChipsDatasProps) {
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={estilos.lista}
       accessibilityRole="tablist"
-      accessibilityLabel="Filtrar por dia"
+      accessibilityLabel={rotulo}
     >
       {opcoes.map((opcao) => {
         const ativa = opcao.valor === selecionada;

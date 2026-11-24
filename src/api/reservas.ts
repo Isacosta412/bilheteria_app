@@ -8,7 +8,7 @@ export async function buscarMapaAssentos(sessaoId: number): Promise<MapaAssentos
 }
 
 /** Só sessão e assentos: total, prazo e status são calculados pela API. */
-export async function reservar(dados: { sessaoId: number; assentoIds: number[] }): Promise<Reserva> {
+export async function reservar(dados: { sessaoId: number; assentoIds: number[]; meias?: number }): Promise<Reserva> {
   const { data } = await api.post<Reserva>('/reservas', dados);
   return data;
 }
@@ -20,6 +20,12 @@ export async function buscarReserva(id: number): Promise<Reserva> {
 
 export async function listarMinhasReservas(): Promise<Reserva[]> {
   const { data } = await api.get<Reserva[]>('/reservas/minhas');
+  return data;
+}
+
+/** Quantos ingressos da reserva pendente são meia. A API recalcula o total. */
+export async function alterarMeias(id: number, meias: number): Promise<Reserva> {
+  const { data } = await api.patch<Reserva>(`/reservas/${id}/meias`, { meias });
   return data;
 }
 
