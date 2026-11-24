@@ -11,6 +11,7 @@ import { CampoBusca } from '@/components/CampoBusca';
 import { CardFilme } from '@/components/CardFilme';
 import { ChipsDatas, type OpcaoData } from '@/components/ChipsDatas';
 import { EsqueletoCardFilme } from '@/components/Esqueleto';
+import { EnderecoCinema } from '@/components/EnderecoCinema';
 import { EstadoVazio } from '@/components/EstadoVazio';
 import { MensagemErro } from '@/components/MensagemErro';
 import { Tela } from '@/components/Tela';
@@ -150,6 +151,7 @@ export default function EmCartaz() {
   return (
     <Tela rolavel={false}>
       <View style={estilos.topo}>
+        <EnderecoCinema estilo={estilos.endereco} />
         <CampoBusca valor={busca} aoMudar={setBusca} placeholder="Buscar filme pelo título" rotulo="Buscar filme pelo título" />
         <ChipsDatas opcoes={opcoesDias} selecionada={dia} aoSelecionar={setDia} />
       </View>
@@ -160,6 +162,7 @@ export default function EmCartaz() {
 
 const estilos = StyleSheet.create({
   topo: { gap: espacos.xs, marginBottom: espacos.sm },
+  endereco: { marginBottom: espacos.xs },
   lista: { flex: 1 },
   linhaGrade: { gap: espacos.sm, marginBottom: espacos.md },
   listaVazia: { flexGrow: 1, justifyContent: 'center' },

@@ -10,6 +10,7 @@ import { buscarFilme } from '@/api/filmes';
 import { listarSessoes } from '@/api/sessoes';
 import { Carregando } from '@/components/Carregando';
 import { CardSessao } from '@/components/CardSessao';
+import { EnderecoCinema } from '@/components/EnderecoCinema';
 import { EstadoVazio } from '@/components/EstadoVazio';
 import { MensagemErro } from '@/components/MensagemErro';
 import { Poster } from '@/components/Poster';
@@ -122,6 +123,7 @@ export default function DetalheFilme() {
               </Text>
             </View>
             <Text style={estilos.sinopse}>{filme.sinopse}</Text>
+            <EnderecoCinema />
           </View>
         </View>
 

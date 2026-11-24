@@ -9,6 +9,7 @@ import { chaves } from '@/api/chaves';
 import { traduzirErro } from '@/api/client';
 import { buscarIngresso } from '@/api/ingressos';
 import { Carregando } from '@/components/Carregando';
+import { EnderecoCinema } from '@/components/EnderecoCinema';
 import { EstadoVazio } from '@/components/EstadoVazio';
 import { FundoCinema } from '@/components/FundoCinema';
 import { MensagemErro } from '@/components/MensagemErro';
@@ -107,6 +108,7 @@ export default function DetalheIngresso() {
               </Text>
             </View>
             <Text style={estilos.quando}>{formatarDiaHora(ingresso.dataHora)}</Text>
+            <EnderecoCinema cor={TINTA_SECUNDARIA} />
             <View style={estilos.campos}>
               <View style={estilos.campo}>
                 <Text style={estilos.rotulo}>Sala</Text>
